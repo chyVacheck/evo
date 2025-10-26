@@ -9,3 +9,5 @@
 
 export * from './ModuleType';
 export * from './CoreModule';
+export * from './UtilModule';
+export * from './BaseModule';

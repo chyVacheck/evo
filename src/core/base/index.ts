@@ -9,3 +9,4 @@
 
 export * from './Core.module';
 export * from './Util.module';
+export * from './Base.module';
