@@ -1,0 +1,11 @@
+/**
+ * @file BaseModule.ts
+ * @module core/base
+ *
+ * @description
+ * Сборный файл для экспорта всех базовых классов из директории modules.
+ * Удобен для импорта в других модулях, когда требуется доступ к нескольким базовым классам.
+ */
+
+export * from './Core.module';
+export * from './Util.module';
