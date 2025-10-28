@@ -10,5 +10,8 @@
 export * from './Core.module';
 export * from './Util.module';
 export * from './Base.module';
+
+export * from './middleware';
+
 export * from './Controller.module';
 export * from './Service.module';

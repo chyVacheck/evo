@@ -1,0 +1,27 @@
+/**
+ * @file AfterMiddlewareModule.ts
+ * @module core/types/modules
+ * @description Интерфейс after-middleware: выполняется ПОСЛЕ контроллера (только если ошибок не было).
+ */
+
+/**
+ * ! my imports
+ */
+import { EModuleType } from '@core/types/modules/ModuleType';
+import { IBaseModule } from '@core/types/modules/BaseModule';
+import { AfterMiddlewareAction, AnyHttpContext } from '@core/types/http';
+
+/**
+ * Интерфейс модуля after middleware.
+ */
+export interface IAfterMiddlewareModule<
+	ModuleName extends string = string,
+	Context extends AnyHttpContext = AnyHttpContext
+> extends IBaseModule<ModuleName, EModuleType.MIDDLEWARE> {
+	/**
+	 * Исполняемая функция middleware.
+	 * Вызывается после основного контроллера.
+	 * Может использовать контекст запроса, но не передаёт управление дальше.
+	 */
+	handle: AfterMiddlewareAction<Context>;
+}

@@ -11,5 +11,8 @@ export * from './ModuleType';
 export * from './CoreModule';
 export * from './UtilModule';
 export * from './BaseModule';
+
+export * from './middleware';
+
 export * from './ControllerModule';
 export * from './ServiceModule';
