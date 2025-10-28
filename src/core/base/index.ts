@@ -1,5 +1,5 @@
 /**
- * @file BaseModule.ts
+ * @file index.ts
  * @module core/base
  *
  * @description
@@ -10,3 +10,5 @@
 export * from './Core.module';
 export * from './Util.module';
 export * from './Base.module';
+export * from './Controller.module';
+export * from './Service.module';
