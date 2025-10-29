@@ -13,5 +13,6 @@ export * from './Base.module';
 
 export * from './middleware';
 
+export * from './Router.module';
 export * from './Controller.module';
 export * from './Service.module';

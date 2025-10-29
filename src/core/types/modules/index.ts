@@ -11,6 +11,7 @@ export * from './ModuleType';
 export * from './CoreModule';
 export * from './UtilModule';
 export * from './BaseModule';
+export * from './RouterModule';
 
 export * from './middleware';
 
