@@ -72,6 +72,9 @@ export type HttpContext<
 
 	// базовая мета
 	method: EHttpMethod;
+	/**
+	 * URL запроса (например, '/api/users/123')
+	 */
 	url: string;
 	path: HttpPath;
 	pathname: string | undefined;
@@ -90,7 +93,9 @@ export type HttpContext<
 	requestId: string;
 	/** Метка времени начала обработки запроса (устанавливается StartTimerMiddleware) */
 	startedAt: number;
-	/** Путь маршрута, на который пришёл запрос (для логов и метрик) */
+	/**
+	 * Путь маршрута, на который пришёл запрос (например, '/api/users/:id')
+	 */
 	matchedPath: HttpPath;
 
 	/** Разобранные части */
