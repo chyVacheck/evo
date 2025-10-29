@@ -20,31 +20,31 @@ import { StrictDateString } from '@core/types';
  * Утилиты для работы с датами.
  */
 class DateUtils extends BaseUtil {
-	static instance: DateUtils = new DateUtils();
-
-	private constructor() {
+	public constructor() {
 		super(DateUtils.name);
 	}
 
 	/**
-	 * Получить текущий экземпляр DateUtils.
+	 * Добавляет ведущие нули к числу, если оно меньше заданной ширины.
 	 *
-	 * Метод позволяет безопасно получить и использовать ранее инициализированный
-	 * экземпляр модуля.
-	 *
-	 * @return {DateUtils}
+	 * @param n Число, к которому нужно добавить ведущие нули
+	 * @param size Ширина числа после добавления ведущих нулей (по умолчанию 2)
+	 * @returns Строка с добавленными ведущими нулями
 	 */
-	public static getInstance(): DateUtils {
-		return DateUtils.instance;
+	protected pad(n: number, size = 2) {
+		return n.toString().padStart(size, '0');
 	}
 
+	/**
+	 * Возвращает время в формате 24-часового времени.
+	 *
+	 * @param date Объект Date, представляющий время.
+	 * @returns Время в формате "HH:mm:ss.SSS" (24-часовой формат).
+	 */
 	public get24HourTime(date: Date): string {
-		const hours = String(date.getHours()).padStart(2, '0');
-		const minutes = String(date.getMinutes()).padStart(2, '0');
-		const seconds = String(date.getSeconds()).padStart(2, '0');
-		const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-
-		return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+		return `${this.pad(date.getHours())}:${this.pad(
+			date.getMinutes()
+		)}:${this.pad(date.getSeconds())}.${this.pad(date.getMilliseconds(), 3)}`;
 	}
 
 	/**
@@ -64,14 +64,16 @@ class DateUtils extends BaseUtil {
 	 * @returns строка формата "YYYY-MM-DD" с брендом StrictDateString
 	 */
 	public toStrictDateString(date: Date): StrictDateString {
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const day = String(date.getDate()).padStart(2, '0');
-		return `${year}-${month}-${day}` as StrictDateString;
+		return `${date.getFullYear()}-${this.pad(date.getMonth() + 1)}-${this.pad(
+			date.getDate()
+		)}` as StrictDateString;
 	}
 }
 
-const util = DateUtils.getInstance();
+/**
+ * Экземпляр DateUtils, который может быть использован для вызова методов утилит.
+ */
+const util = new DateUtils();
 
 /**
  * Экспортируем единственный экземпляр DateUtils

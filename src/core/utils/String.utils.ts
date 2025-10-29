@@ -19,28 +19,27 @@ import { BaseUtil } from '@core/base';
  * Утилиты для работы со строками.
  */
 class StringUtils extends BaseUtil {
-	static instance: StringUtils = new StringUtils();
-
-	private constructor() {
+	public constructor() {
 		super(StringUtils.name);
 	}
 
 	/**
-	 * Получить текущий экземпляр StringUtils.
+	 * Добавляет пробелы в конец строки до заданной ширины.
 	 *
-	 * Метод позволяет безопасно получить и использовать ранее инициализированный
-	 * экземпляр модуля.
-	 *
-	 * @return {StringUtils}
+	 * @param str Строка, к которой нужно добавить пробелы
+	 * @param width Ширина строки после добавления пробелов
+	 * @returns Строка с добавленными пробелами
 	 */
-	public static getInstance(): StringUtils {
-		return StringUtils.instance;
-	}
-
 	public padString(str: string, width: number): string {
 		return str.padEnd(width);
 	}
 
+	/**
+	 * Возвращает последний символ строки.
+	 *
+	 * @param string Строка, из которой нужно получить последний символ
+	 * @returns Последний символ строки
+	 */
 	public getLastChar(string: string): string {
 		return string.charAt(string.length - 1);
 	}
@@ -50,7 +49,10 @@ class StringUtils extends BaseUtil {
 	}
 }
 
-const util = StringUtils.getInstance();
+/**
+ * Экземпляр StringUtils, который может быть использован для вызова методов утилит.
+ */
+const util = new StringUtils();
 
 /**
  * Экспортируем единственный экземпляр StringUtils

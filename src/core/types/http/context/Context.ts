@@ -64,7 +64,7 @@ export type HttpContext<
 	Params extends HttpParams = {},
 	Query extends HttpQuery = {},
 	Body = unknown,
-	S extends object = {} // state: то, что добавляют middleware
+	State extends object = {} // state: то, что добавляют middleware
 > = {
 	// сырые объекты
 	rawReq: IncomingMessage;
@@ -99,7 +99,7 @@ export type HttpContext<
 	body: Body;
 
 	/** Накопительное состояние от middleware */
-	state: S;
+	state: State;
 
 	/** Хелперы ответа */
 	reply: HttpReply;

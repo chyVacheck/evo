@@ -29,22 +29,8 @@ import { BaseUtil } from '@core/base';
  * Утилиты для работы с файловой системой
  */
 class FileUtils extends BaseUtil {
-	static instance: FileUtils = new FileUtils();
-
-	private constructor() {
+	public constructor() {
 		super(FileUtils.name);
-	}
-
-	/**
-	 * Получить текущий экземпляр FileUtils.
-	 *
-	 * Метод позволяет безопасно получить и использовать ранее инициализированный
-	 * экземпляр модуля.
-	 *
-	 * @return {FileUtils}
-	 */
-	public static getInstance(): FileUtils {
-		return FileUtils.instance;
 	}
 
 	/**
@@ -166,7 +152,10 @@ class FileUtils extends BaseUtil {
 	}
 }
 
-const util = FileUtils.getInstance();
+/**
+ * Экземпляр FileUtils, который может быть использован для вызова методов утилит.
+ */
+const util = new FileUtils();
 
 /**
  * Экспортируем единственный экземпляр FileUtils
