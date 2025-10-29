@@ -20,7 +20,6 @@
  */
 import {
 	AnyHttpContext,
-	BeforeMiddlewareAction,
 	IBeforeMiddlewareModule,
 	MergeState
 } from '@core/types';

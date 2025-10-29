@@ -40,19 +40,6 @@ export type FinallyMiddlewareAction<
 
 /**
  * @description
- * Типобезопасный кортеж middleware с поэтапной прокидкой state
- */
-export type MiddlewareChain<
-	C0 extends AnyHttpContext,
-	Adds extends object[]
-> = Adds extends []
-	? []
-	: Adds extends [infer A extends object, ...infer R extends object[]]
-	? [BeforeMiddlewareAction<C0, A>, ...MiddlewareChain<MergeState<C0, A>, R>]
-	: never;
-
-/**
- * @description
  * Финальный контекст после цепочки Adds
  */
 export type ComposeState<

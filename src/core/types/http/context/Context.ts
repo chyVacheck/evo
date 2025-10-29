@@ -25,15 +25,15 @@ export type HttpReply = {
 	/**
 	 * Устанавливает HTTP-статус ответа.
 	 *
-	 * @param code - Числовой код статуса (например, 200, 404)
+	 * @param {number} code - Числовой код статуса (например, 200, 404)
 	 * @returns Тот же объект TReply для цепочки вызовов
 	 */
 	status(code: number): HttpReply;
 	/**
 	 * Устанавливает HTTP-заголовок ответа.
 	 *
-	 * @param name - Название заголовка (например, 'Content-Type')
-	 * @param value - Значение заголовка (например, 'application/json')
+	 * @param {string} name - Название заголовка (например, 'Content-Type')
+	 * @param {string} value - Значение заголовка (например, 'application/json')
 	 * @returns Тот же объект TReply для цепочки вызовов
 	 */
 	set(name: string, value: string): HttpReply;
@@ -47,14 +47,14 @@ export type HttpReply = {
 	/**
 	 * Отправляет текстовый ответ.
 	 *
-	 * @param data - Текстовые данные, которые будут отправлены
+	 * @param {string} data - Текстовые данные, которые будут отправлены
 	 * @returns void
 	 */
 	text(data: string): void;
 	/**
 	 * Отправляет произвольные бинарные данные.
 	 *
-	 * @param data - Бинарные данные, которые будут отправлены
+	 * @param {string | Uint8Array | ArrayBuffer} data - Бинарные данные, которые будут отправлены
 	 * @returns void
 	 */
 	send(data: string | Uint8Array | ArrayBuffer): void;
@@ -75,19 +75,33 @@ export type HttpContext<
 	url: string;
 	path: HttpPath;
 	pathname: string | undefined;
+
+	/** Нормализованные заголовки с lowercased ключами */
 	headers: HttpHeaders;
-	ip: string;
+
+	/** Единый нормализованный IP клиента */
+	clientIp: string;
+
+	/** Куки (если не распарсили — undefined) */
 	cookies: HttpCookies | undefined;
 
-	// разобранные части
+	/** Инварианты запроса */
+	/** Уникальный идентификатор запроса (устанавливается RequestIdMiddleware) */
+	requestId: string;
+	/** Метка времени начала обработки запроса (устанавливается StartTimerMiddleware) */
+	startedAt: number;
+	/** Путь маршрута, на который пришёл запрос (для логов и метрик) */
+	matchedPath: HttpPath;
+
+	/** Разобранные части */
 	params: Params;
 	query: Query;
 	body: Body;
 
-	// накопительное состояние от middleware
+	/** Накопительное состояние от middleware */
 	state: S;
 
-	// reply-хелперы (реализация позже)
+	/** Хелперы ответа */
 	reply: HttpReply;
 };
 
@@ -97,6 +111,6 @@ export type AnyHttpContext = HttpContext<any, any, any, any>;
 /**
  * Сохраняем модификаторы свойств, меняем только state
  */
-export type MergeState<C extends AnyHttpContext, Add extends object> = {
-	[K in keyof C]: K extends 'state' ? C['state'] & Add : C[K];
+export type MergeState<Context extends AnyHttpContext, Add extends object> = {
+	[K in keyof Context]: K extends 'state' ? Context['state'] & Add : Context[K];
 };
