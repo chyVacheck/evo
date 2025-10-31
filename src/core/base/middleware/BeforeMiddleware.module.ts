@@ -9,9 +9,9 @@
  * @example
  * class SomeCustomMiddleware extends BeforeMiddlewareModule {
  *   constructor() {
- *     super('SomeMiddleware');
+ *     super(SomeCustomMiddleware.name);
  *   }
- *   abstract handle(ctx: CIn): Promise<void> | void;
+ *   abstract handle(ctx: Context, next: (ctx: MergeState<Context, StateAdd>) => Promise<void>): Promise<void> | void;
  * }
  */
 

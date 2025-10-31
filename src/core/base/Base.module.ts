@@ -35,6 +35,11 @@ import {
 import { CoreModule } from '@core/base/Core.module';
 import { IBaseModule } from '@core/types/modules';
 
+type BaseModuleLog = Omit<
+	ILog,
+	'level' | 'createdAt' | 'moduleName' | 'moduleType'
+>;
+
 /**
  * Абстрактный класс, описывающий базовые свойства всех модулей:
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
@@ -65,80 +70,61 @@ export abstract class BaseModule<
 	 */
 	protected log(
 		level: ELogLevel,
-		data: Omit<ILog, 'level' | 'createdAt' | 'moduleName' | 'moduleType'>,
+		data: BaseModuleLog,
 		ops?: { log?: LogOptions; console?: ConsolePrintOptions }
 	): void {
 		Logger.fromModule(this, level, data, ops);
 	}
 
-	/** Лог уровня DEBUG */
+	/**
+	 * Лог уровня DEBUG
+	 */
 	protected debug(
-		message: string,
-		extra?: Partial<
-			Omit<
-				ILog,
-				'message' | 'level' | 'createdAt' | 'moduleName' | 'moduleType'
-			>
-		>,
+		data: BaseModuleLog,
 		ops?: { log?: LogOptions; console?: ConsolePrintOptions }
 	): void {
-		this.log(ELogLevel.DEBUG, { message, ...extra }, ops);
+		this.log(ELogLevel.DEBUG, data, ops);
 	}
 
-	/** Лог уровня INFO (по умолчанию не сохраняется в файл) */
+	/**
+	 * Лог уровня INFO (по умолчанию не сохраняется в файл)
+	 */
 	protected info(
-		message: string,
-		extra?: Partial<
-			Omit<
-				ILog,
-				'message' | 'level' | 'createdAt' | 'moduleName' | 'moduleType'
-			>
-		>,
+		data: BaseModuleLog,
+
 		ops?: { log?: LogOptions; console?: ConsolePrintOptions }
 	): void {
 		const save = ops?.log?.save ?? false; // по умолчанию не сохраняем
-		this.log(ELogLevel.INFO, { message, ...extra }, { ...ops, log: { save } });
+		this.log(ELogLevel.INFO, data, { ...ops, log: { save } });
 	}
 
-	/** Лог уровня WARN */
+	/**
+	 * Лог уровня WARN
+	 */
 	protected warn(
-		message: string,
-		extra?: Partial<
-			Omit<
-				ILog,
-				'message' | 'level' | 'createdAt' | 'moduleName' | 'moduleType'
-			>
-		>,
+		data: BaseModuleLog,
 		ops?: { log?: LogOptions; console?: ConsolePrintOptions }
 	): void {
-		this.log(ELogLevel.WARN, { message, ...extra }, ops);
+		this.log(ELogLevel.WARN, data, ops);
 	}
 
-	/** Лог уровня ERROR */
+	/**
+	 * Лог уровня ERROR
+	 */
 	protected error(
-		message: string,
-		extra?: Partial<
-			Omit<
-				ILog,
-				'message' | 'level' | 'createdAt' | 'moduleName' | 'moduleType'
-			>
-		>,
+		data: BaseModuleLog,
 		ops?: { log?: LogOptions; console?: ConsolePrintOptions }
 	): void {
-		this.log(ELogLevel.ERROR, { message, ...extra }, ops);
+		this.log(ELogLevel.ERROR, data, ops);
 	}
 
-	/** Лог уровня FATAL */
+	/**
+	 * Лог уровня FATAL
+	 */
 	protected fatal(
-		message: string,
-		extra?: Partial<
-			Omit<
-				ILog,
-				'message' | 'level' | 'createdAt' | 'moduleName' | 'moduleType'
-			>
-		>,
+		data: BaseModuleLog,
 		ops?: { log?: LogOptions; console?: ConsolePrintOptions }
 	): void {
-		this.log(ELogLevel.FATAL, { message, ...extra }, ops);
+		this.log(ELogLevel.FATAL, data, ops);
 	}
 }

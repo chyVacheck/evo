@@ -134,8 +134,10 @@ export abstract class RouterModule<
 				path.replace(/\/:([^\/]+)/g, (_, paramName) => {
 					if (seenParamNames.has(paramName)) {
 						this.fatal(
-							`Duplicate parameter name '${paramName}' in path '${path}'`,
-							{ details: { paramName, path } },
+							{
+								message: `Duplicate parameter name '${paramName}' in path '${path}'`,
+								details: { paramName, path }
+							},
 							{ log: { save: false } }
 						);
 						throw new Error(
@@ -435,6 +437,12 @@ export abstract class RouterModule<
 		return undefined;
 	}
 
+	/**
+	 * Обработка входящего HTTP-запроса.
+	 *
+	 * @param {http.IncomingMessage} req Объект входящего HTTP-запроса
+	 * @param {http.ServerResponse} res Объект исходящего HTTP-ответа
+	 */
 	public async handleRequest(
 		req: http.IncomingMessage,
 		res: http.ServerResponse
@@ -458,7 +466,6 @@ export abstract class RouterModule<
 
 		// 3) Нормализация заголовков и парсинг cookies
 		const headers = this.normalizeHeaders(req.headers);
-		const cookies = this.parseCookies(headers['cookie']);
 
 		// 4) Единый IP
 		const forwardedFor = headers['x-forwarded-for'];
@@ -482,7 +489,10 @@ export abstract class RouterModule<
 
 			headers,
 			clientIp,
-			cookies,
+			/**
+			 * Cookies парсятся в CookieMiddleware.
+			 */
+			cookies: {},
 
 			/**
 			 * Генерируем уникальный requestId.
