@@ -39,7 +39,9 @@ import {
 	RouteScope,
 	IBeforeMiddlewareModule,
 	IAfterMiddlewareModule,
-	IFinallyMiddlewareModule
+	IFinallyMiddlewareModule,
+	PathParamsOf,
+	WithParams
 } from '@core/types';
 import { BaseModule } from '@core/base/Base.module';
 import { CryptoUtils } from '@core/utils';
@@ -98,18 +100,21 @@ export abstract class RouterModule<
 		this.prefix = prefix;
 	}
 
-	protected joinPaths(prefix: HttpPath, path: HttpPath): HttpPath {
-		// уберём двойные слэши и сохраним ведущий '/'
-		const p = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
+	private parseQuery(
+		searchParams: URLSearchParams
+	): Record<string, string | Array<string>> {
+		const acc: Record<string, Array<string>> = {};
 
-		let joinedPath = `${p}${path}`.replace(/\/{2,}/g, '/') as HttpPath;
-
-		// Remove trailing slash if it's not the root path
-		if (joinedPath.length > 1 && joinedPath.endsWith('/')) {
-			joinedPath = joinedPath.slice(0, -1) as HttpPath;
+		for (const [k, v] of searchParams.entries()) {
+			(acc[k] ??= []).push(v);
 		}
 
-		return joinedPath;
+		const out: Record<string, string | string[]> = {};
+		for (const [k, arr] of Object.entries(acc)) {
+			out[k] = arr.length === 1 ? arr[0]! : arr;
+		}
+
+		return out;
 	}
 
 	/**
@@ -118,7 +123,7 @@ export abstract class RouterModule<
 	 * @param path Путь с параметрами (например, '/api/users/:id')
 	 * @returns Объект с регулярным выражением и массивом имен параметров
 	 */
-	protected parsePath(path: HttpPath): {
+	private parsePath(path: HttpPath): {
 		pathRegex: RegExp;
 		paramNames: Array<string>;
 	} {
@@ -144,6 +149,70 @@ export abstract class RouterModule<
 				'$'
 		);
 		return { pathRegex, paramNames };
+	}
+
+	/**
+	 * Канонизация пути: ведущий '/', без двойных слэшей, без хвостового '/' (кроме корня)
+	 * @param p Путь для нормализации
+	 * @returns Нормализованный путь
+	 */
+	private normalizePath(p: string): HttpPath {
+		let s = p || '/';
+		s = s.replace(/\/{2,}/g, '/');
+		if (s.length > 1 && s.endsWith('/')) s = s.slice(0, -1);
+		if (!s.startsWith('/')) s = `/${s}`;
+		return s as HttpPath;
+	}
+
+	/**
+	 * Нормализация заголовков к lower-case ключам и string-значениям (берём первый если массив)
+	 * @param src Исходный объект заголовков
+	 * @returns Нормализованный объект заголовков
+	 */
+	private normalizeHeaders(
+		src: http.IncomingHttpHeaders
+	): Record<string, string> {
+		const out: Record<string, string> = {};
+		for (const k in src) {
+			const v = src[k];
+			if (Array.isArray(v)) out[k.toLowerCase()] = v[0] ?? '';
+			else out[k.toLowerCase()] = v ?? '';
+		}
+		return out;
+	}
+
+	/**
+	 * Простой парсер cookies (без подписи/шифрования)
+	 * @param cookieHeader Заголовок cookies (например, 'cookie1=value1; cookie2=value2')
+	 * @returns Объект с парсёнными cookies (ключ-значение) или undefined, если заголовок отсутствует
+	 */
+	private parseCookies(
+		cookieHeader?: string
+	): Record<string, string> | undefined {
+		if (!cookieHeader) return undefined;
+		const out: Record<string, string> = {};
+		for (const part of cookieHeader.split(';')) {
+			const [k, ...rest] = part.split('=');
+			const key = k?.trim();
+			if (!key) continue;
+			const val = rest.join('=').trim();
+			out[key] = decodeURIComponent(val);
+		}
+		return out;
+	}
+
+	protected joinPaths(prefix: HttpPath, path: HttpPath): HttpPath {
+		// уберём двойные слэши и сохраним ведущий '/'
+		const p = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
+
+		let joinedPath = `${p}${path}`.replace(/\/{2,}/g, '/') as HttpPath;
+
+		// Remove trailing slash if it's not the root path
+		if (joinedPath.length > 1 && joinedPath.endsWith('/')) {
+			joinedPath = joinedPath.slice(0, -1) as HttpPath;
+		}
+
+		return joinedPath;
 	}
 
 	/**
@@ -241,43 +310,64 @@ export abstract class RouterModule<
 	}
 
 	/** GET */
-	public get(
-		path: HttpPath,
-		handler: ControllerAction<Base>
-	): RouteScope<Base> {
-		return this.createRouteScope<Base>(EHttpMethod.GET, path, handler);
+
+	public get<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
+			EHttpMethod.GET,
+			path,
+			handler
+		);
 	}
 
 	/** POST */
-	public post(
-		path: HttpPath,
-		handler: ControllerAction<Base>
-	): RouteScope<Base> {
-		return this.createRouteScope<Base>(EHttpMethod.POST, path, handler);
+	public post<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
+			EHttpMethod.POST,
+			path,
+			handler
+		);
 	}
 
 	/** PUT */
-	public put(
-		path: HttpPath,
-		handler: ControllerAction<Base>
-	): RouteScope<Base> {
-		return this.createRouteScope<Base>(EHttpMethod.PUT, path, handler);
+	public put<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
+			EHttpMethod.PUT,
+			path,
+			handler
+		);
 	}
 
 	/** PATCH */
-	public patch(
-		path: HttpPath,
-		handler: ControllerAction<Base>
-	): RouteScope<Base> {
-		return this.createRouteScope<Base>(EHttpMethod.PATCH, path, handler);
+	public patch<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
+			EHttpMethod.PATCH,
+			path,
+			handler
+		);
 	}
 
 	/** DELETE */
-	public delete(
-		path: HttpPath,
-		handler: ControllerAction<Base>
-	): RouteScope<Base> {
-		return this.createRouteScope<Base>(EHttpMethod.DELETE, path, handler);
+	public delete<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
+			EHttpMethod.DELETE,
+			path,
+			handler
+		);
 	}
 
 	public mount(child: RouterModule<any, Base>): this {
@@ -320,29 +410,15 @@ export abstract class RouterModule<
 	 * @param {HttpPath} path Путь маршрута (например, '/api/users/:id')
 	 * @returns {RouteScope<Base> | undefined} Объект скоупа маршрута, если найден, иначе undefined
 	 */
-	public matchRoute(
-		method: EHttpMethod,
-		url: HttpPath
-	):
-		| undefined
-		| {
-				path: HttpPath;
-				handler: ControllerAction<Base>;
-				before: Array<BeforeMiddlewareAction<Base, any>>;
-				after: Array<AfterMiddlewareAction<Base>>;
-				finally: Array<FinallyMiddlewareAction<Base>>;
-				params: Record<string, string>;
-		  } {
+	public matchRoute(method: EHttpMethod, pathname: HttpPath) {
 		// Пытаемся найти маршрут по методу
 		const methodRoutes = this.routes.get(method);
 
 		// Если маршрутов для метода нет, возвращаем undefined
-		if (!methodRoutes) {
-			return undefined;
-		}
+		if (!methodRoutes) return undefined;
 
 		for (const [path, route] of methodRoutes) {
-			const match = url.match(route.pathRegex);
+			const match = pathname.match(route.pathRegex);
 			if (match) {
 				const params: Record<string, string> = {};
 				if (match.groups) {
@@ -364,32 +440,49 @@ export abstract class RouterModule<
 		res: http.ServerResponse
 	) {
 		const method: EHttpMethod = (req.method as EHttpMethod) || EHttpMethod.GET;
+		const rawUrl = req.url || '/';
 
-		console.log(req.url);
-		const url = req.url || '/';
+		// 1) Разбор URL: отделяем pathname и query
+		const u = new URL(rawUrl, 'http://localhost'); // base нужен для Node
+		const pathname = (u.pathname || '/') as HttpPath; // RFC-декодированный путь без query/hash
+		const path = this.normalizePath(pathname); // канонический путь фреймворка
+		const query = this.parseQuery(u.searchParams); // Record<string, string | string[]>
 
-		const match = this.matchRoute(method, url as HttpPath);
-
+		// 2) Матчинг роутов — строго по path (без query)
+		const match = this.matchRoute(method, path);
 		if (!match) {
 			res.statusCode = 404;
 			res.end('Not Found');
 			return;
 		}
 
+		// 3) Нормализация заголовков и парсинг cookies
+		const headers = this.normalizeHeaders(req.headers);
+		const cookies = this.parseCookies(headers['cookie']);
+
+		// 4) Единый IP
+		const forwardedFor = headers['x-forwarded-for'];
+		let clientIp = req.socket?.remoteAddress || '';
+		// Если есть X-Forwarded-For, берем первый IP
+		if (forwardedFor) {
+			// Берем первый IP из X-Forwarded-For
+			const firstIp = forwardedFor.split(',')[0];
+			if (firstIp) clientIp = firstIp.trim();
+		}
+
 		const ctx: AnyHttpContext = {
 			rawReq: req,
 			rawRes: res,
 
-			method,
-			url,
-			path: url as HttpPath,
-			pathname: url as HttpPath, // todo
+			method: method,
+			url: rawUrl, // сырой URL как пришёл
+			path, // нормализованный путь (канонический для роутера)
+			pathname, // RFC pathname (если где-то пригодится)
+			matchedPath: match.path, // шаблон маршрута, например '/users/:id'
 
-			headers: {}, //req.headers,
-			clientIp: req.socket.remoteAddress || '',
-			cookies: {}, // req.headers.cookie || '',
-
-			matchedPath: match.path, //
+			headers,
+			clientIp,
+			cookies,
 
 			/**
 			 * Генерируем уникальный requestId.
@@ -401,25 +494,54 @@ export abstract class RouterModule<
 			startedAt: Date.now(),
 
 			params: match.params,
-			query: {},
+			query,
 			body: {},
 			state: {},
+
 			reply: {
+				/**
+				 * Устанавливает HTTP-статус код ответа.
+				 */
 				status: (code: number) => {
 					res.statusCode = code;
 					return ctx.reply;
 				},
-				json: (data: any) => res.end(JSON.stringify(data)),
-				text: (data: string) => res.end(data),
-				send: (data: any) => res.end(data),
 				set: (name: string, value: string) => {
 					res.setHeader(name, value);
 					return ctx.reply;
+				},
+				json: (data: unknown) => {
+					// можно добавить заголовок контента, длину и т.д.
+					if (!res.getHeader('Content-Type'))
+						res.setHeader('Content-Type', 'application/json');
+					const buf = Buffer.from(JSON.stringify(data));
+					if (!res.getHeader('Content-Length'))
+						res.setHeader('Content-Length', String(buf.byteLength));
+					res.end(buf);
+				},
+				text: (data: string) => {
+					if (!res.getHeader('Content-Type'))
+						res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+					const buf = Buffer.from(data, 'utf8');
+					if (!res.getHeader('Content-Length'))
+						res.setHeader('Content-Length', String(buf.byteLength));
+					res.end(buf);
+				},
+				send: (data: string | Uint8Array | ArrayBuffer) => {
+					const buf =
+						typeof data === 'string'
+							? Buffer.from(data, 'utf8')
+							: data instanceof Uint8Array
+							? Buffer.from(data)
+							: Buffer.from(data);
+					if (!res.getHeader('Content-Length'))
+						res.setHeader('Content-Length', String(buf.byteLength));
+					res.end(buf);
 				}
 			}
 		};
 
-		let error: unknown;
+		let caughtError: unknown;
 
 		try {
 			// before
@@ -438,13 +560,13 @@ export abstract class RouterModule<
 				await mw(ctx as any);
 			}
 		} catch (e) {
-			error = e;
+			caughtError = e;
 			res.statusCode = 500;
 			res.end('Internal Server Error');
 		} finally {
 			for (const fin of match.finally) {
 				try {
-					await fin(ctx as any, error as Error | undefined);
+					await fin(ctx as any, caughtError as Error | undefined);
 				} catch {}
 			}
 		}

@@ -73,7 +73,7 @@ export type HttpContext<
 	// базовая мета
 	method: EHttpMethod;
 	/**
-	 * URL запроса (например, '/api/users/123')
+	 * Сырой URL запроса (например, '/api/users/123?query=123')
 	 */
 	url: string;
 	path: HttpPath;
@@ -115,7 +115,27 @@ export type AnyHttpContext = HttpContext<any, any, any, any>;
 
 /**
  * Сохраняем модификаторы свойств, меняем только state
+ *
+ * @template Context - Тип контекста запроса, который расширяет AnyHttpContext
+ * @template Add - Тип добавляемых свойств состояния, который является подмножеством State
+ *
+ * @returns {MergeState<Context, Add>} - Новый контекст запроса с объединённым состоянием
  */
 export type MergeState<Context extends AnyHttpContext, Add extends object> = {
 	[K in keyof Context]: K extends 'state' ? Context['state'] & Add : Context[K];
 };
+
+/**
+ * Добавляет новые параметры к контексту запроса.
+ *
+ * @template Context - Тип контекста запроса, который расширяет AnyHttpContext
+ * @template P - Тип добавляемых параметров, который является подмножеством HttpParams
+ *
+ * @param {Context} context - Исходный контекст запроса
+ * @param {P} params - Новые параметры, которые будут добавлены к контексту
+ * @returns {MergeState<Context, P>} - Новый контекст запроса с объединённым состоянием
+ */
+export type WithParams<
+	Context extends AnyHttpContext,
+	P extends Record<string, string>
+> = Omit<Context, 'params'> & { params: Context['params'] & P };

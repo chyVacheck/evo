@@ -12,8 +12,11 @@ import { EModuleType } from '@core/types/modules/ModuleType';
 import { IBaseModule } from '@core/types/modules/BaseModule';
 import {
 	AnyHttpContext,
+	ControllerAction,
+	HttpPath,
 	MergeState,
-	RouteMethodRegistrar
+	PathParamsOf,
+	WithParams
 } from '@core/types/http';
 import {
 	IAfterMiddlewareModule,
@@ -37,27 +40,44 @@ export interface IRouterModule<
 	 * @description
 	 * Регистрация маршрута для метода GET.
 	 */
-	get: RouteMethodRegistrar<Base, RouteScope<Base>>;
+	get<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
+
 	/**
 	 * @description
 	 * Регистрация маршрута для метода POST.
 	 */
-	post: RouteMethodRegistrar<Base, RouteScope<Base>>;
+	post<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
+
 	/**
 	 * @description
 	 * Регистрация маршрута для метода PUT.
 	 */
-	put: RouteMethodRegistrar<Base, RouteScope<Base>>;
+	put<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
 	/**
 	 * @description
 	 * Регистрация маршрута для метода PATCH.
 	 */
-	patch: RouteMethodRegistrar<Base, RouteScope<Base>>;
+	patch<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
 	/**
 	 * @description
 	 * Регистрация маршрута для метода DELETE.
 	 */
-	delete: RouteMethodRegistrar<Base, RouteScope<Base>>;
+	delete<Path extends HttpPath>(
+		path: Path,
+		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
+	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
 
 	/** Вложить дочерний роутер под префикс */
 	mount(child: IRouterModule<any, Base>): this;
