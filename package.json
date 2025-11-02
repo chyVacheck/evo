@@ -1,11 +1,18 @@
 {
-  "name": "evo",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+	"name": "evo",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"dev": "bun --watch src/App.ts",
+		"start": "bun run src/App.ts"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"zod": "^4.1.12"
+	}
 }

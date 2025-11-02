@@ -104,7 +104,7 @@ export type HttpContext<
 	body: Body;
 
 	/** Накопительное состояние от middleware */
-	state: State;
+	state: { validated: {} } & State;
 
 	/** Хелперы ответа */
 	reply: HttpReply;

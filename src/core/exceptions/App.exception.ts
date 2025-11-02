@@ -85,7 +85,7 @@ export abstract class AppException extends Error implements Exception {
 	 * @return {string} текст сообщения
 	 */
 	public getMessage(): string {
-		return super.message;
+		return this.message;
 	}
 
 	/**

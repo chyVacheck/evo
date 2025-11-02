@@ -21,8 +21,9 @@ export class InvalidPathParametersException extends AppException {
 	constructor({
 		message = `Invalid Path Parameters`,
 		origin,
-		details = null
+		details = null,
+		errors = null
 	}: Omit<Exception, 'code'>) {
-		super(message, ErrorCode.INVALID_PATH_PARAMETERS, origin, details, null);
+		super(message, ErrorCode.INVALID_PATH_PARAMETERS, origin, details, errors);
 	}
 }

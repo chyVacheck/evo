@@ -457,6 +457,7 @@ export abstract class RouterModule<
 			if (firstIp) clientIp = firstIp.trim();
 		}
 
+		// 5) Создание контекста запроса
 		const ctx: AnyHttpContext = {
 			rawReq: req,
 			rawRes: res,
@@ -501,20 +502,38 @@ export abstract class RouterModule<
 					return ctx.reply;
 				},
 				json: (data: unknown) => {
-					// можно добавить заголовок контента, длину и т.д.
-					if (!res.getHeader('Content-Type'))
-						res.setHeader('Content-Type', 'application/json');
 					const buf = Buffer.from(JSON.stringify(data));
-					if (!res.getHeader('Content-Length'))
-						res.setHeader('Content-Length', String(buf.byteLength));
+					/**
+					 * Устанавливаем Content-Type в application/json.
+					 */
+					res.setHeader('Content-Type', 'application/json');
+					/**
+					 * Устанавливаем Content-Length.
+					 */
+					res.setHeader('Content-Length', String(buf.byteLength));
+					/**
+					 * Устанавливаем X-Response-Time.
+					 */
+					res.setHeader('X-Response-Time', `${Date.now() - ctx.startedAt}`);
 					res.end(buf);
 				},
 				text: (data: string) => {
-					if (!res.getHeader('Content-Type'))
-						res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+					/**
+					 * Устанавливаем Content-Type в text/plain.
+					 */
+					res.setHeader('Content-Type', 'text/plain; charset=utf-8');
 					const buf = Buffer.from(data, 'utf8');
-					if (!res.getHeader('Content-Length'))
-						res.setHeader('Content-Length', String(buf.byteLength));
+					/**
+					 * Устанавливаем Content-Length.
+					 */
+					res.setHeader('Content-Length', String(buf.byteLength));
+					/**
+					 * Устанавливаем X-Response-Time.
+					 */
+					res.setHeader(
+						'X-Response-Time',
+						`${new Date().getTime() - ctx.startedAt}`
+					);
 					res.end(buf);
 				},
 				send: (data: string | Uint8Array | ArrayBuffer) => {
@@ -524,12 +543,26 @@ export abstract class RouterModule<
 							: data instanceof Uint8Array
 							? Buffer.from(data)
 							: Buffer.from(data);
-					if (!res.getHeader('Content-Length'))
-						res.setHeader('Content-Length', String(buf.byteLength));
+					/**
+					 * Устанавливаем Content-Length.
+					 */
+					res.setHeader('Content-Length', String(buf.byteLength));
+					/**
+					 * Устанавливаем X-Response-Time.
+					 */
+					res.setHeader(
+						'X-Response-Time',
+						`${new Date().getTime() - ctx.startedAt}`
+					);
 					res.end(buf);
 				}
 			}
 		};
+
+		/**
+		 * Устанавливаем X-Request-Id в заголовки ответа
+		 */
+		ctx.reply.set('X-Request-Id', ctx.requestId);
 
 		let caughtError: unknown;
 
@@ -551,8 +584,6 @@ export abstract class RouterModule<
 			}
 		} catch (e) {
 			caughtError = e;
-			res.statusCode = 500;
-			res.end('Internal Server Error');
 		} finally {
 			for (const fin of match.finally) {
 				try {
