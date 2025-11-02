@@ -21,8 +21,9 @@ export class InvalidQueryParametersException extends AppException {
 	constructor({
 		message = `Invalid query parameters`,
 		origin,
-		details = null
+		details = null,
+		errors = null
 	}: Omit<Exception, 'code'>) {
-		super(message, ErrorCode.INVALID_QUERY_PARAMETERS, origin, details, null);
+		super(message, ErrorCode.INVALID_QUERY_PARAMETERS, origin, details, errors);
 	}
 }

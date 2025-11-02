@@ -6,3 +6,4 @@
 export * from './Cookie.middleware';
 export * from './ErrorHandler.middleware';
 export * from './ValidateParams.middleware';
+export * from './ValidateQuery.middleware';
