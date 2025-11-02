@@ -1,0 +1,28 @@
+/**
+ * @file Locked.exception.ts
+ * @module core/exceptions
+ *
+ * @description
+ * Класс ошибки приложения, когда ресурс заблокирован.
+ */
+
+/**
+ * ! my imports
+ */
+import { AppException } from '@core/exceptions/App.exception';
+import { ErrorCode } from '@core/exceptions/ErrorCode';
+import { Exception } from '@core/types/exceptions/Exception';
+
+/**
+ * @description
+ * Класс ошибки приложения, когда ресурс заблокирован.
+ */
+export class LockedException extends AppException {
+	constructor({
+		message = `Locked`,
+		origin,
+		details = null
+	}: Omit<Exception, 'code'>) {
+		super(message, ErrorCode.LOCKED, origin, details, null);
+	}
+}

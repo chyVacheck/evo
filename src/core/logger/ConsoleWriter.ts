@@ -178,7 +178,7 @@ export class ConsoleWriter extends CoreModule {
 						? error.stack ?? error.message
 						: error.message
 					: String(error);
-			logMessage += `\n${
+			logMessage += `\nError: ${
 				options.colorize ? EColor.RED : ''
 			}${errorMsg}${reset}`;
 		}

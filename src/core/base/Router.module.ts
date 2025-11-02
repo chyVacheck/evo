@@ -183,26 +183,6 @@ export abstract class RouterModule<
 		return out;
 	}
 
-	/**
-	 * Простой парсер cookies (без подписи/шифрования)
-	 * @param cookieHeader Заголовок cookies (например, 'cookie1=value1; cookie2=value2')
-	 * @returns Объект с парсёнными cookies (ключ-значение) или undefined, если заголовок отсутствует
-	 */
-	private parseCookies(
-		cookieHeader?: string
-	): Record<string, string> | undefined {
-		if (!cookieHeader) return undefined;
-		const out: Record<string, string> = {};
-		for (const part of cookieHeader.split(';')) {
-			const [k, ...rest] = part.split('=');
-			const key = k?.trim();
-			if (!key) continue;
-			const val = rest.join('=').trim();
-			out[key] = decodeURIComponent(val);
-		}
-		return out;
-	}
-
 	protected joinPaths(prefix: HttpPath, path: HttpPath): HttpPath {
 		// уберём двойные слэши и сохраним ведущий '/'
 		const p = prefix.endsWith('/') ? prefix.slice(0, -1) : prefix;
@@ -222,7 +202,7 @@ export abstract class RouterModule<
 	 */
 
 	public useBefore(
-		...mods: Array<IBeforeMiddlewareModule<any, Base, any>>
+		...mods: Array<IBeforeMiddlewareModule<any, Base, object>>
 	): this {
 		this.globalBefore.push(...mods.map(m => m.handle.bind(m)));
 		return this;

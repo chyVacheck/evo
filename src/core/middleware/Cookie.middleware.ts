@@ -43,7 +43,7 @@ import { AnyHttpContext } from '@core/types';
 export class CookieMiddleware extends BeforeMiddlewareModule<
 	typeof CookieMiddleware.name,
 	AnyHttpContext,
-	AnyHttpContext
+	any
 > {
 	constructor() {
 		super(CookieMiddleware.name);

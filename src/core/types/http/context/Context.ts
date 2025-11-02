@@ -114,15 +114,21 @@ export type HttpContext<
 export type AnyHttpContext = HttpContext<any, any, any, any>;
 
 /**
- * Сохраняем модификаторы свойств, меняем только state
+ * Умный тип объединения состояния контекста.
+ * Гарантирует, что в результирующем контексте:
+ * - Все свойства исходного контекста сохраняются.
+ * - Поле `state` аккуратно мержится, без потери вложенных полей.
  *
  * @template Context - Тип контекста запроса, который расширяет AnyHttpContext
  * @template Add - Тип добавляемых свойств состояния, который является подмножеством State
  *
  * @returns {MergeState<Context, Add>} - Новый контекст запроса с объединённым состоянием
  */
-export type MergeState<Context extends AnyHttpContext, Add extends object> = {
-	[K in keyof Context]: K extends 'state' ? Context['state'] & Add : Context[K];
+export type MergeState<
+	Context extends AnyHttpContext,
+	Add extends object
+> = Omit<Context, 'state'> & {
+	state: Context['state'] extends object ? Context['state'] & Add : Add;
 };
 
 /**
