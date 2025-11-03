@@ -70,7 +70,7 @@ export abstract class RouterModule<
 		ModuleName extends string = string,
 		Base extends AnyHttpContext = AnyHttpContext
 	>
-	extends BaseModule<ModuleName, EModuleType.ROUTER>
+	extends BaseModule<ModuleName>
 	implements IRouterModule<ModuleName, Base>
 {
 	protected prefix: HttpPath;
@@ -594,7 +594,9 @@ export abstract class RouterModule<
 	}
 
 	/**
-	 * ? === === === Debug === === ===
+	 * Возвращает список всех зарегистрированных маршрутов с методом и путём.
+	 *
+	 * @returns Список всех зарегистрированных маршрутов с методом и путём.
 	 */
 	public listRoutes(): Array<{ method: EHttpMethod; path: string }> {
 		const routesList: Array<{ method: EHttpMethod; path: string }> = [];

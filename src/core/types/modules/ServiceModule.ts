@@ -20,11 +20,10 @@
 /**
  * ! my imports
  */
-import { EModuleType } from '@core/types/modules/ModuleType';
 import { IBaseModule } from '@core/types/modules/BaseModule';
 
 /**
  * Интерфейс базового сервисного модуля ядра
  */
 export interface IServiceModule<ModuleName extends string = string>
-	extends IBaseModule<ModuleName, EModuleType.SERVICE> {}
+	extends IBaseModule<ModuleName> {}

@@ -31,7 +31,7 @@ import {
 export interface IRouterModule<
 	ModuleName extends string = string,
 	Base extends AnyHttpContext = AnyHttpContext
-> extends IBaseModule<ModuleName, EModuleType.ROUTER> {
+> extends IBaseModule<ModuleName> {
 	useBefore: (...fns: Array<IBeforeMiddlewareModule<any, Base, any>>) => this;
 	useAfter: (...fns: Array<IAfterMiddlewareModule<any, Base>>) => this;
 	finally: (...fns: Array<IFinallyMiddlewareModule<any, Base, any>>) => this;

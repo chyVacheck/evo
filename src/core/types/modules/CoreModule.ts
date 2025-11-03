@@ -10,10 +10,7 @@
  */
 import { EModuleType } from '@core/types/modules/ModuleType';
 
-export type ICoreModule<
-	ModuleName extends string = string,
-	ModuleType extends EModuleType = EModuleType
-> = {
+export type ICoreModule<ModuleName extends string = string> = {
 	/**
 	 * Возвращает название модуля
 	 */
@@ -22,5 +19,5 @@ export type ICoreModule<
 	/**
 	 * Возвращает тип модуля
 	 */
-	getModuleType: () => ModuleType;
+	getModuleType: () => EModuleType;
 };

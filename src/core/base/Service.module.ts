@@ -26,7 +26,7 @@ import { BaseModule } from '@core/base/Base.module';
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
 export abstract class ServiceModule<ModuleName extends string = string>
-	extends BaseModule<ModuleName, EModuleType.SERVICE>
+	extends BaseModule<ModuleName>
 	implements IServiceModule<ModuleName>
 {
 	/**

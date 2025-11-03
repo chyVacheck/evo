@@ -19,7 +19,7 @@ import { EModuleType, IControllerModule } from '@core/types';
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
 export abstract class ControllerModule<ModuleName extends string = string>
-	extends CoreModule<ModuleName, EModuleType.CONTROLLER>
+	extends CoreModule<ModuleName>
 	implements IControllerModule<ModuleName>
 {
 	/**

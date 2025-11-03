@@ -26,7 +26,7 @@ import { BaseModule } from '@core/base/Base.module';
  */
 export abstract class MiddlewareModule<
 	ModuleName extends string = string
-> extends BaseModule<ModuleName, EModuleType.MIDDLEWARE> {
+> extends BaseModule<ModuleName> {
 	/**
 	 * Базовый конструктор Middleware-модуля.
 	 *

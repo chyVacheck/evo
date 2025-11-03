@@ -30,8 +30,8 @@ import { IUtilModule } from '@core/types';
  * Абстрактный базовый класс для утилитарных классов.
  */
 export abstract class BaseUtil<ModuleName extends string = string>
-	extends CoreModule<ModuleName, EModuleType.UTIL>
-	implements IUtilModule<ModuleName, EModuleType.UTIL>
+	extends CoreModule<ModuleName>
+	implements IUtilModule<ModuleName>
 {
 	/**
 	 * Конструктор базового Util.

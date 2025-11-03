@@ -7,7 +7,6 @@
 /**
  * ! my imports
  */
-import { EModuleType } from '@core/types/modules/ModuleType';
 import { IBaseModule } from '@core/types/modules/BaseModule';
 import { AfterMiddlewareAction, AnyHttpContext } from '@core/types/http';
 
@@ -17,7 +16,7 @@ import { AfterMiddlewareAction, AnyHttpContext } from '@core/types/http';
 export interface IAfterMiddlewareModule<
 	ModuleName extends string = string,
 	Context extends AnyHttpContext = AnyHttpContext
-> extends IBaseModule<ModuleName, EModuleType.MIDDLEWARE> {
+> extends IBaseModule<ModuleName> {
 	/**
 	 * Исполняемая функция middleware.
 	 * Вызывается после основного контроллера.
