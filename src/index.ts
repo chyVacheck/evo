@@ -1,6 +1,6 @@
 /**
- * @file App.ts
- * @module src/App.ts
+ * @file index.ts
+ * @module src/index.ts
  */
 
 /**
@@ -8,14 +8,12 @@
  */
 import { SERVER_CONFIG } from '@config';
 import { Evo } from '@core/app';
+import { ApiRouter } from '@modules/api';
 
 /**
  * Создаем экземпляр приложения Evo.
  */
-const evo = new Evo();
-
-// (Необязательно) вывести таблицу роутов
-evo.printRoutes();
+const evo = new Evo('/');
 
 // Старт
 evo.listen({ port: SERVER_CONFIG.PORT });

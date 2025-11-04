@@ -204,19 +204,41 @@ export abstract class RouterModule<
 	public useBefore(
 		...mods: Array<IBeforeMiddlewareModule<any, Base, object>>
 	): this {
-		this.globalBefore.push(...mods.map(m => m.handle.bind(m)));
+		this.globalBefore.push(
+			...mods.map(m => {
+				this.debug({
+					message: `Registering before middleware: ${m.getModuleName()}`
+				});
+				return m.handle.bind(m);
+			})
+		);
 		return this;
 	}
 
 	public useAfter(...mods: Array<IAfterMiddlewareModule<any, Base>>): this {
-		this.globalAfter.push(...mods.map(m => m.handle.bind(m)));
+		this.globalAfter.push(
+			...mods.map(m => {
+				this.debug({
+					message: `Registering after middleware: ${m.getModuleName()}`
+				});
+				return m.handle.bind(m);
+			})
+		);
 		return this;
 	}
 
 	public finally(
 		...mods: Array<IFinallyMiddlewareModule<any, Base, any>>
 	): this {
-		this.globalFinally.push(...mods.map(m => m.handle.bind(m)));
+		this.globalFinally.push(
+			...mods.map(m => {
+				this.debug({
+					message: `Registering finally middleware: ${m.getModuleName()}`
+				});
+
+				return m.handle.bind(m);
+			})
+		);
 		return this;
 	}
 
@@ -297,6 +319,9 @@ export abstract class RouterModule<
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		this.debug({
+			message: `GET route: ${path}`
+		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.GET,
 			path,
@@ -309,6 +334,9 @@ export abstract class RouterModule<
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		this.debug({
+			message: `POST route: ${path}`
+		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.POST,
 			path,
@@ -321,6 +349,9 @@ export abstract class RouterModule<
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		this.debug({
+			message: `PUT route: ${path}`
+		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.PUT,
 			path,
@@ -333,6 +364,9 @@ export abstract class RouterModule<
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		this.debug({
+			message: `PATCH route: ${path}`
+		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.PATCH,
 			path,
@@ -345,6 +379,9 @@ export abstract class RouterModule<
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		this.debug({
+			message: `DELETE route: ${path}`
+		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.DELETE,
 			path,
@@ -353,6 +390,10 @@ export abstract class RouterModule<
 	}
 
 	public mount(child: RouterModule<any, Base>): this {
+		this.debug({
+			message: `Registering child router: ${child.getModuleName()}`
+		});
+
 		// доступ к protected допустим, т.к. мы внутри того же класса
 		const childImpl = child;
 
@@ -387,9 +428,8 @@ export abstract class RouterModule<
 
 	/**
 	 * Пытается найти маршрут по методу и пути.
-	 *
 	 * @param {EHttpMethod} method HTTP-метод маршрута (GET, POST, PUT, DELETE и т.д.)
-	 * @param {HttpPath} path Путь маршрута (например, '/api/users/:id')
+	 * @param {HttpPath} pathname Путь маршрута (например, '/api/users/:id')
 	 * @returns {RouteScope<Base> | undefined} Объект скоупа маршрута, если найден, иначе undefined
 	 */
 	public matchRoute(method: EHttpMethod, pathname: HttpPath) {

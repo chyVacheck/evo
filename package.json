@@ -1,10 +1,12 @@
 {
 	"name": "evo",
-	"module": "index.ts",
+	"module": "src/index.ts",
 	"type": "module",
+	"author": "Dmytro Shakh <dmytro.4or.work@gmail.com> (https://github.com/chyvacheck)",
+	"license": "SEE LICENSE IN LICENSE",
 	"scripts": {
-		"dev": "bun --watch src/App.ts",
-		"start": "bun run src/App.ts"
+		"dev": "bun --watch src/index.ts",
+		"start": "bun run src/index.ts"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"
