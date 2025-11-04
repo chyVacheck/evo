@@ -22,5 +22,5 @@ export const MONGO_DB_CONFIG = {
 	DB_NAME: Bun.env.MONGO_DB_NAME || 'evo',
 
 	/** Таймаут операций по умолчанию (мс) */
-	TIMEOUT_MS: Number(Bun.env.MONGO_DB_TIMEOUT_MS) || 10000
+	TIMEOUT_MS: Number(Bun.env.MONGO_DB_TIMEOUT_MS ?? 10000)
 };

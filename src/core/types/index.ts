@@ -8,6 +8,10 @@
  */
 
 export * from './common';
+export * from './data';
+export * from './drivers';
+export * from './exceptions';
 export * from './http';
 export * from './logger';
 export * from './modules';
+export * from './repository';

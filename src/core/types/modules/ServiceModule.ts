@@ -7,7 +7,7 @@
  * @extends IBaseModule
  *
  * @see EModuleType
- * @see ICoreModule
+ * @see IBaseModule
  *
  * @example
  * class SomeCustomModule extends ServiceModule {
