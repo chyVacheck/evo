@@ -28,10 +28,8 @@ import {
  * @description
  * Интерфейс модуля роутера.
  */
-export interface IRouterModule<
-	ModuleName extends string = string,
-	Base extends AnyHttpContext = AnyHttpContext
-> extends IBaseModule<ModuleName> {
+export interface IRouterModule<Base extends AnyHttpContext = AnyHttpContext>
+	extends IBaseModule {
 	useBefore: (...fns: Array<IBeforeMiddlewareModule<any, Base, any>>) => this;
 	useAfter: (...fns: Array<IAfterMiddlewareModule<any, Base>>) => this;
 	finally: (...fns: Array<IFinallyMiddlewareModule<any, Base, any>>) => this;
@@ -80,7 +78,7 @@ export interface IRouterModule<
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
 
 	/** Вложить дочерний роутер под префикс */
-	mount(child: IRouterModule<any, Base>): this;
+	mount(child: IRouterModule<Base>): this;
 }
 
 /**
@@ -97,7 +95,7 @@ export interface RouteScope<Content extends AnyHttpContext> {
 	finally: (
 		...mods: Array<IFinallyMiddlewareModule<any, Content, any>>
 	) => RouteScope<Content>;
-	done: () => IRouterModule<any, Content>;
+	done: () => IRouterModule<Content>;
 }
 
 // и добавь туда те же helper-типы:

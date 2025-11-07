@@ -44,17 +44,14 @@ type BaseModuleLog = Omit<
  * Абстрактный класс, описывающий базовые свойства всех модулей:
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
-export abstract class BaseModule<ModuleName extends string = string>
-	extends CoreModule<ModuleName>
-	implements IBaseModule<ModuleName>
-{
+export abstract class BaseModule extends CoreModule implements IBaseModule {
 	/**
 	 * Базовый конструктор Core-модуля.
 	 *
 	 * @param moduleType - Тип модуля
 	 * @param moduleName - Название модуля
 	 */
-	protected constructor(moduleType: EModuleType, moduleName: ModuleName) {
+	protected constructor(moduleType: EModuleType, moduleName: string) {
 		super(moduleType, moduleName);
 	}
 

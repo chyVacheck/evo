@@ -14,9 +14,8 @@ import { AfterMiddlewareAction, AnyHttpContext } from '@core/types/http';
  * Интерфейс модуля after middleware.
  */
 export interface IAfterMiddlewareModule<
-	ModuleName extends string = string,
 	Context extends AnyHttpContext = AnyHttpContext
-> extends IBaseModule<ModuleName> {
+> extends IBaseModule {
 	/**
 	 * Исполняемая функция middleware.
 	 * Вызывается после основного контроллера.

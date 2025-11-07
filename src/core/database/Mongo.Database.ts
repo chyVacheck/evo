@@ -8,7 +8,7 @@
 /**
  * ! lib imports
  */
-import { MongoClient, Db, Collection, Document } from 'mongodb';
+import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
 
 /**
  * ! my imports
@@ -26,7 +26,7 @@ export type TMongoManagerOptions = ConstructorParameters<typeof MongoClient>[1];
  *
  * @extends BaseDatabase
  */
-export class MongoDatabase extends BaseDatabase<typeof MongoDatabase.name> {
+export class MongoDatabase extends BaseDatabase {
 	private client: MongoClient;
 	private db: Db | null = null;
 	private connectingPromise: Promise<void> | null = null;
@@ -102,5 +102,10 @@ export class MongoDatabase extends BaseDatabase<typeof MongoDatabase.name> {
 		const db = await this.requireDb();
 		await db.command({ ping: 1 });
 		return 'ok';
+	}
+
+	/** Создать новую сессию. */
+	public startSession(): ClientSession {
+		return this.client.startSession();
 	}
 }

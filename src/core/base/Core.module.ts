@@ -31,14 +31,12 @@ import { EModuleType, ICoreModule } from '@core/types';
  * Абстрактный класс, описывающий базовые свойства всех модулей:
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
-export abstract class CoreModule<ModuleName extends string = string>
-	implements ICoreModule<ModuleName>
-{
+export abstract class CoreModule implements ICoreModule {
 	/** Тип модуля (например, SYSTEM, SERVICE, ROUTER и т.д.) */
 	private moduleType: EModuleType;
 
 	/** Имя модуля (используется в логах и отладке) */
-	private readonly moduleName: ModuleName;
+	private readonly moduleName: string;
 
 	/**
 	 * Базовый конструктор Core-модуля.
@@ -46,7 +44,7 @@ export abstract class CoreModule<ModuleName extends string = string>
 	 * @param moduleType - Тип модуля
 	 * @param moduleName - Название модуля
 	 */
-	protected constructor(moduleType: EModuleType, moduleName: ModuleName) {
+	protected constructor(moduleType: EModuleType, moduleName: string) {
 		const trimmedModuleName = moduleName.trim();
 
 		if (!trimmedModuleName) {
@@ -56,15 +54,15 @@ export abstract class CoreModule<ModuleName extends string = string>
 		}
 
 		this.moduleType = moduleType;
-		this.moduleName = trimmedModuleName as ModuleName;
+		this.moduleName = trimmedModuleName;
 	}
 
 	/**
 	 * Возвращает название модуля
 	 *
-	 * @returns {ModuleName} Название модуля
+	 * @returns {string} Название модуля
 	 */
-	public getModuleName(): ModuleName {
+	public getModuleName(): string {
 		return this.moduleName;
 	}
 

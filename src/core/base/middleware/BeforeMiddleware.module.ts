@@ -30,19 +30,18 @@ import { MiddlewareModule } from '@core/base/middleware/BaseMiddleware.module';
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
 export abstract class BeforeMiddlewareModule<
-		ModuleName extends string = string,
 		Context extends AnyHttpContext = AnyHttpContext,
 		StateAdd extends object = {}
 	>
-	extends MiddlewareModule<ModuleName>
-	implements IBeforeMiddlewareModule<ModuleName, Context, StateAdd>
+	extends MiddlewareModule
+	implements IBeforeMiddlewareModule<Context, StateAdd>
 {
 	/**
 	 * Базовый конструктор Middleware-модуля.
 	 *
-	 * @param moduleName - Название модуля
+	 * @param {string} moduleName - Название модуля
 	 */
-	protected constructor(moduleName: ModuleName) {
+	protected constructor(moduleName: string) {
 		super(moduleName);
 	}
 

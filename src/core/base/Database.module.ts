@@ -16,15 +16,13 @@ import { EModuleType, EColor } from '@core/types';
  * @abstract
  * @extends BaseModule
  */
-export abstract class BaseDatabase<
-	ModuleName extends string
-> extends BaseModule<ModuleName> {
+export abstract class BaseDatabase extends BaseModule {
 	/** URL для подключения к базе данных */
 	protected readonly url: string;
 	/** Название базы данных */
 	protected readonly title: string;
 
-	constructor(moduleName: ModuleName, title: string, url: string) {
+	constructor(moduleName: string, title: string, url: string) {
 		super(EModuleType.DATABASE, moduleName);
 		this.url = url;
 		this.title = title;

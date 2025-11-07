@@ -24,15 +24,13 @@ import { BaseModule } from '@core/base/Base.module';
  * Абстрактный класс, описывающий базовые свойства всех модулей:
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
-export abstract class MiddlewareModule<
-	ModuleName extends string = string
-> extends BaseModule<ModuleName> {
+export abstract class MiddlewareModule extends BaseModule {
 	/**
 	 * Базовый конструктор Middleware-модуля.
 	 *
-	 * @param moduleName - Название модуля
+	 * @param {string} moduleName - Название модуля
 	 */
-	protected constructor(moduleName: ModuleName) {
+	protected constructor(moduleName: string) {
 		super(EModuleType.MIDDLEWARE, moduleName);
 	}
 }

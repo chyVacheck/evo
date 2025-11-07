@@ -37,11 +37,10 @@ import { TPagedResult } from '@core/types/data/pagination';
  * @typeParam TUpdate - Тип данных для обновления (по умолчанию `Partial<TModel>`).
  */
 export interface IRepositoryModule<
-	ModuleName extends string = string,
 	TModel = any,
 	TFilter = unknown, // конкретная БД сузит (например, Filter<TModel> в Mongo)
 	TUpdate = Partial<TModel>
-> extends IBaseModule<ModuleName> {
+> extends IBaseModule {
 	/**
 	 * ? === === === Create === === ===
 	 */

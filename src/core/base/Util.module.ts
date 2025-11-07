@@ -29,17 +29,14 @@ import { IUtilModule } from '@core/types';
 /**
  * Абстрактный базовый класс для утилитарных классов.
  */
-export abstract class BaseUtil<ModuleName extends string = string>
-	extends CoreModule<ModuleName>
-	implements IUtilModule<ModuleName>
-{
+export abstract class BaseUtil extends CoreModule implements IUtilModule {
 	/**
 	 * Конструктор базового Util.
 	 * Устанавливает тип модуля как {@link EModuleType.UTIL}
 	 *
-	 * @param {ModuleName} moduleName название класса, представляющий модуль
+	 * @param {string} moduleName название класса, представляющий модуль
 	 */
-	protected constructor(moduleName: ModuleName) {
+	protected constructor(moduleName: string) {
 		super(EModuleType.UTIL, moduleName);
 	}
 }

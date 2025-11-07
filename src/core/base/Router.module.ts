@@ -20,6 +20,9 @@
  * }
  */
 
+/**
+ * ! lib imports
+ */
 import http from 'http';
 
 /**
@@ -46,7 +49,7 @@ import {
 import { BaseModule } from '@core/base/Base.module';
 import { CryptoUtils } from '@core/utils';
 
-type StateOfBefore<M> = M extends IBeforeMiddlewareModule<any, any, infer S>
+type StateOfBefore<M> = M extends IBeforeMiddlewareModule<any, infer S>
 	? S
 	: {};
 
@@ -66,12 +69,9 @@ type AccCtx<
  * @description
  * Базовый абстрактный класс для всех модулей роутера приложения.
  */
-export abstract class RouterModule<
-		ModuleName extends string = string,
-		Base extends AnyHttpContext = AnyHttpContext
-	>
-	extends BaseModule<ModuleName>
-	implements IRouterModule<ModuleName, Base>
+export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
+	extends BaseModule
+	implements IRouterModule<Base>
 {
 	protected prefix: HttpPath;
 	/** Глобальные middleware — массивы уже связанных функций */
@@ -95,7 +95,7 @@ export abstract class RouterModule<
 		>
 	> = new Map();
 
-	protected constructor(moduleName: ModuleName, prefix: HttpPath) {
+	protected constructor(moduleName: string, prefix: HttpPath) {
 		super(EModuleType.ROUTER, moduleName);
 		this.prefix = prefix;
 	}
@@ -202,7 +202,7 @@ export abstract class RouterModule<
 	 */
 
 	public useBefore(
-		...mods: Array<IBeforeMiddlewareModule<any, Base, object>>
+		...mods: Array<IBeforeMiddlewareModule<Base, object>>
 	): this {
 		this.globalBefore.push(
 			...mods.map(m => {
@@ -215,7 +215,7 @@ export abstract class RouterModule<
 		return this;
 	}
 
-	public useAfter(...mods: Array<IAfterMiddlewareModule<any, Base>>): this {
+	public useAfter(...mods: Array<IAfterMiddlewareModule<Base>>): this {
 		this.globalAfter.push(
 			...mods.map(m => {
 				this.debug({
@@ -227,9 +227,7 @@ export abstract class RouterModule<
 		return this;
 	}
 
-	public finally(
-		...mods: Array<IFinallyMiddlewareModule<any, Base, any>>
-	): this {
+	public finally(...mods: Array<IFinallyMiddlewareModule<Base, any>>): this {
 		this.globalFinally.push(
 			...mods.map(m => {
 				this.debug({
@@ -282,7 +280,7 @@ export abstract class RouterModule<
 
 		// Локальный билдер с «прокидыванием» state дальше по цепочке
 		const scope = {
-			useBefore: <Ms extends Array<IBeforeMiddlewareModule<any, Context, any>>>(
+			useBefore: <Ms extends Array<IBeforeMiddlewareModule<Context, any>>>(
 				...mods: Ms
 			) => {
 				route.before.push(
@@ -293,21 +291,19 @@ export abstract class RouterModule<
 				type NextC = AccCtx<Context, Ms>;
 				return scope as unknown as RouteScope<NextC>;
 			},
-			useAfter: (...mods: Array<IAfterMiddlewareModule<any, Context>>) => {
+			useAfter: (...mods: Array<IAfterMiddlewareModule<Context>>) => {
 				route.after.push(
 					...mods.map(m => (m.handle as AfterMiddlewareAction<any>).bind(m))
 				);
 				return scope as unknown as RouteScope<Context>;
 			},
-			finally: (
-				...mods: Array<IFinallyMiddlewareModule<any, Context, any>>
-			) => {
+			finally: (...mods: Array<IFinallyMiddlewareModule<Context, any>>) => {
 				route.finally.push(
 					...mods.map(m => (m.handle as FinallyMiddlewareAction<any>).bind(m))
 				);
 				return scope as unknown as RouteScope<Context>;
 			},
-			done: () => this as unknown as IRouterModule<any, Context>
+			done: () => this as unknown as IRouterModule<Context>
 		};
 
 		return scope;
@@ -389,7 +385,7 @@ export abstract class RouterModule<
 		);
 	}
 
-	public mount(child: RouterModule<any, Base>): this {
+	public mount(child: RouterModule<Base>): this {
 		this.debug({
 			message: `Registering child router: ${child.getModuleName()}`
 		});
