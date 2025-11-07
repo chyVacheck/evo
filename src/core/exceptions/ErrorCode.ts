@@ -91,6 +91,13 @@ class ErrorCode {
 		'INVALID_QUERY_PARAMETERS',
 		HttpStatusCode.BAD_REQUEST
 	);
+	/**
+	 * @description Некорректное значение параметра limit (например, меньше 1)
+	 */
+	static readonly INVALID_PAGINATION_LIMIT = new ErrorCode(
+		'INVALID_PAGINATION_LIMIT',
+		HttpStatusCode.BAD_REQUEST
+	);
 
 	/**
 	 * ? === === UNAUTHORIZED (401) === === ===
@@ -328,6 +335,13 @@ class ErrorCode {
 	 */
 	static readonly PRECONDITION_FAILED = new ErrorCode(
 		'PRECONDITION_FAILED',
+		HttpStatusCode.PRECONDITION_FAILED
+	);
+	/**
+	 * @description Операция отклонена как небезопасная (например, попытка удалить все записи без подтверждения)
+	 */
+	static readonly UNSAFE_OPERATION = new ErrorCode(
+		'UNSAFE_OPERATION',
 		HttpStatusCode.PRECONDITION_FAILED
 	);
 
@@ -618,6 +632,13 @@ class ErrorCode {
 	 */
 	static readonly MAINTENANCE_MODE = new ErrorCode(
 		'MAINTENANCE_MODE',
+		HttpStatusCode.SERVICE_UNAVAILABLE
+	);
+	/**
+	 * @description Репозиторий не подтвердил запись
+	 */
+	static readonly REPOSITORY_WRITE_NOT_ACKNOWLEDGED = new ErrorCode(
+		'REPOSITORY_WRITE_NOT_ACKNOWLEDGED',
 		HttpStatusCode.SERVICE_UNAVAILABLE
 	);
 

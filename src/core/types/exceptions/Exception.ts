@@ -16,3 +16,12 @@ export type Exception = {
 	details: Record<string, any> | null;
 	errors: Record<string, any> | null;
 };
+
+export type ExceptionConstructor = Omit<
+	Exception,
+	'code' | 'message' | 'details' | 'errors'
+> & {
+	message?: string;
+	details?: Record<string, any> | null;
+	errors?: Record<string, any> | null;
+};

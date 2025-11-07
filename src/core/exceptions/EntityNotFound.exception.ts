@@ -22,7 +22,9 @@ export class EntityNotFoundException extends AppException {
 		message = `Entity not found`,
 		origin,
 		details = null
-	}: Omit<Exception, 'code'>) {
+	}: Omit<Exception, 'code' | 'errors' | 'message'> & {
+		message?: string;
+	}) {
 		super(message, ErrorCode.ENTITY_NOT_FOUND, origin, details, null);
 	}
 }

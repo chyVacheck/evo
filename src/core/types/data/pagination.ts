@@ -6,10 +6,13 @@
  * Типы данных для пагинации.
  */
 
-export type TPagination = { page: number; pageSize: number };
-export type TPagedResult<T> = {
-	items: T[];
-	total: number;
+/**
+ * @description
+ * Тип данных для пагинации.
+ */
+export type TPagination = {
 	page: number;
-	pageSize: number;
+	total: number;
+	limit: number;
+	totalPages: number;
 };

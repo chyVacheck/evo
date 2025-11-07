@@ -15,5 +15,5 @@ export * from './middleware';
 
 export * from './Router.module';
 export * from './Controller.module';
-export * from './Service.module';
+export * from './service';
 export * from './repository';

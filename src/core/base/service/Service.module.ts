@@ -8,33 +8,35 @@
  * @see EModuleType
  *
  * @example
- * class SomeCustomModule extends ServiceModule {
+ * ```ts
+ * class UserService extends ServiceModule {
  *   constructor() {
- *     super(EModuleType.SERVICE, 'SomeService');
+ *     super(UserService.name);
  *   }
  * }
+ * ```
  */
 
 /**
  * ! my imports
  */
-import { EModuleType, IServiceModule } from '@core/types';
+import { EModuleType, IServiceModule, TId } from '@core/types';
 import { BaseModule } from '@core/base/Base.module';
 
 /**
  * Абстрактный класс, описывающий базовые свойства всех сервисных модулей:
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
-export abstract class ServiceModule<ModuleName extends string = string>
-	extends BaseModule<ModuleName>
-	implements IServiceModule<ModuleName>
+export abstract class ServiceModule
+	extends BaseModule
+	implements IServiceModule
 {
 	/**
 	 * Базовый конструктор Service-модуля.
 	 *
 	 * @param moduleName - Название модуля
 	 */
-	constructor(moduleName: ModuleName) {
+	constructor(moduleName: string) {
 		super(EModuleType.SERVICE, moduleName);
 	}
 }

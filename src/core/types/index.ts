@@ -15,3 +15,4 @@ export * from './http';
 export * from './logger';
 export * from './modules';
 export * from './repository';
+export * from './service';
