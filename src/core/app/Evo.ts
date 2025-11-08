@@ -24,7 +24,11 @@ import {
 	EModuleType
 } from '@core/types';
 import { RouterModule } from '@core/base';
-import { ErrorHandlerMiddleware } from '@core/middleware';
+import {
+	ContentTypeMiddleware,
+	ErrorHandlerMiddleware,
+	ParseBodyMiddleware
+} from '@core/middleware';
 
 export type ListenOptions = {
 	port: number;
@@ -39,13 +43,20 @@ export type ListenOptions = {
 
 export class Evo<
 	Base extends AnyHttpContext = AnyHttpContext
-> extends RouterModule<typeof Evo.name, Base> {
+> extends RouterModule<Base> {
 	private server: http.Server | null = null;
 
 	constructor(prefix: HttpPath = '/') {
 		super(Evo.name, prefix);
 		this.setModuleType(EModuleType.SYSTEM);
 		this.debug({ message: 'Evo constructor' });
+		// ? === === === Глобальные middleware === === ===
+
+		// Определение content-type (только для POST/PUT/PATCH)
+		this.useBefore(new ContentTypeMiddleware());
+		// Парсинг тела запроса (только для POST/PUT/PATCH)
+		this.useBefore(new ParseBodyMiddleware());
+
 		// Глобальная finally-мидлвара на всё приложение
 		this.finally(new ErrorHandlerMiddleware());
 	}
@@ -57,7 +68,7 @@ export class Evo<
 	 * const app = new App();
 	 * app.use(new ApiRouter(), new AdminRouter());
 	 */
-	public use(...routers: Array<RouterModule<any, Base>>): this {
+	public use(...routers: Array<RouterModule<Base>>): this {
 		for (const r of routers) {
 			this.mount(r);
 		}
@@ -72,9 +83,9 @@ export class Evo<
 	 * app.useMiddlewares({ before: [auth], after: [metrics], finally: [errors] })
 	 */
 	public useMiddlewares(opts: {
-		before?: Array<IBeforeMiddlewareModule<any, Base, any>>;
-		after?: Array<IAfterMiddlewareModule<any, Base>>;
-		finally?: Array<IFinallyMiddlewareModule<any, Base, any>>;
+		before?: Array<IBeforeMiddlewareModule<AnyHttpContext, any>>;
+		after?: Array<IAfterMiddlewareModule<AnyHttpContext>>;
+		finally?: Array<IFinallyMiddlewareModule<AnyHttpContext, any>>;
 	}): this {
 		if (opts.before?.length) this.useBefore(...opts.before);
 		if (opts.after?.length) this.useAfter(...opts.after);
