@@ -29,10 +29,7 @@ import { z } from 'zod';
  */
 import { BeforeMiddlewareModule } from '@core/base';
 import { AnyHttpContext, MergeState } from '@core/types';
-import {
-	InvalidPathParametersException,
-	InvalidQueryParametersException
-} from '@core/exceptions';
+import { InvalidQueryParametersException } from '@core/exceptions';
 
 /**
  * @description
@@ -60,11 +57,7 @@ const DISALLOWED_BASE = new Set(['object']);
 export class ValidateQueryMiddleware<
 	S extends z.ZodObject<any>,
 	Context extends AnyHttpContext = AnyHttpContext
-> extends BeforeMiddlewareModule<
-	typeof ValidateQueryMiddleware.name,
-	Context,
-	ValidatedQueryState<z.infer<S>>
-> {
+> extends BeforeMiddlewareModule<Context, ValidatedQueryState<z.infer<S>>> {
 	private readonly schema: S;
 
 	private assertFlatObjectSchema(

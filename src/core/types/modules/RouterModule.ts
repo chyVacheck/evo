@@ -8,7 +8,6 @@
 /**
  * ! my imports
  */
-import { EModuleType } from '@core/types/modules/ModuleType';
 import { IBaseModule } from '@core/types/modules/BaseModule';
 import {
 	AnyHttpContext,
@@ -30,9 +29,13 @@ import {
  */
 export interface IRouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	extends IBaseModule {
-	useBefore: (...fns: Array<IBeforeMiddlewareModule<any, Base, any>>) => this;
-	useAfter: (...fns: Array<IAfterMiddlewareModule<any, Base>>) => this;
-	finally: (...fns: Array<IFinallyMiddlewareModule<any, Base, any>>) => this;
+	useBefore: (
+		...fns: Array<IBeforeMiddlewareModule<AnyHttpContext, any>>
+	) => this;
+	useAfter: (...fns: Array<IAfterMiddlewareModule<AnyHttpContext>>) => this;
+	finally: (
+		...fns: Array<IFinallyMiddlewareModule<AnyHttpContext, any>>
+	) => this;
 
 	/**
 	 * @description
@@ -86,20 +89,20 @@ export interface IRouterModule<Base extends AnyHttpContext = AnyHttpContext>
  * Возвращаемый билдер для конкретного маршрута
  */
 export interface RouteScope<Content extends AnyHttpContext> {
-	useBefore: <Ms extends Array<IBeforeMiddlewareModule<any, Content, any>>>(
+	useBefore: <Ms extends Array<IBeforeMiddlewareModule<Content, any>>>(
 		...mods: Ms
 	) => RouteScope<MergeState<Content, MergeStates<Ms>>>;
 	useAfter: (
-		...mods: Array<IAfterMiddlewareModule<any, Content>>
+		...mods: Array<IAfterMiddlewareModule<Content>>
 	) => RouteScope<Content>;
 	finally: (
-		...mods: Array<IFinallyMiddlewareModule<any, Content, any>>
+		...mods: Array<IFinallyMiddlewareModule<Content, any>>
 	) => RouteScope<Content>;
 	done: () => IRouterModule<Content>;
 }
 
 // и добавь туда те же helper-типы:
-type StateOfBefore<M> = M extends IBeforeMiddlewareModule<any, any, infer S>
+type StateOfBefore<M> = M extends IBeforeMiddlewareModule<any, infer S>
 	? S
 	: {};
 type MergeStates<Ms extends readonly unknown[]> = Ms extends [

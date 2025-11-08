@@ -57,11 +57,7 @@ const DISALLOWED_BASE = new Set(['array', 'object']);
 export class ValidateParamsMiddleware<
 	S extends z.ZodObject<any>,
 	Context extends AnyHttpContext = AnyHttpContext
-> extends BeforeMiddlewareModule<
-	typeof ValidateParamsMiddleware.name,
-	Context,
-	ValidatedParamsState<z.infer<S>>
-> {
+> extends BeforeMiddlewareModule<Context, ValidatedParamsState<z.infer<S>>> {
 	private readonly schema: S;
 
 	private assertFlatObjectSchema(
