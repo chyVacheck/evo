@@ -13,8 +13,8 @@
  * ! my imports
  */
 import { ValidatedParamsState, ValidatedBodyState } from '@core/middleware';
-import { HttpContextValidated, PathParamsOf } from '@core/types/http';
-import { HttpStatusCode, SuccessResponse } from '@core/http';
+import { HttpContextValidated } from '@core/types/http';
+import { SuccessResponse } from '@core/http';
 import { ObjectIdParamsRequest } from '@core/dto';
 import { ControllerModule } from '@core/base';
 import { UserService } from '@modules/user/User.service';

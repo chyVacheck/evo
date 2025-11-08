@@ -156,8 +156,8 @@ export abstract class MongoServiceModule<
 	) {
 		return {
 			...options,
-			session: meta.session,
-			comment: meta.requestId // критично: привязываем запрос ко всем операциям в логе Mongo
+			...(meta?.session !== undefined && { session: meta.session }),
+			...(meta?.requestId !== undefined && { comment: meta.requestId })
 		};
 	}
 
@@ -373,8 +373,8 @@ export abstract class MongoServiceModule<
 	) {
 		return {
 			...options,
-			session: meta.session,
-			comment: meta.requestId // критично: привязываем запрос ко всем операциям в логе Mongo
+			...(meta?.session !== undefined && { session: meta.session }),
+			...(meta?.requestId !== undefined && { comment: meta.requestId })
 		};
 	}
 
@@ -441,7 +441,7 @@ export abstract class MongoServiceModule<
 		options?: FindOneOptions<TModel>;
 		meta: ServiceMeta;
 	}): Promise<ServiceResponse<WithId<TModel>>> {
-		const entity = await this._getOneById({ id, options, meta });
+		const entity = await this._getOneById({ id, options: options ?? {}, meta });
 
 		/** Возвращаем сущность в ответе. */
 		return ServiceResponse.founded(entity);
@@ -636,8 +636,8 @@ export abstract class MongoServiceModule<
 	) {
 		return {
 			...options,
-			session: meta.session,
-			comment: meta.requestId // критично: привязываем запрос ко всем операциям в логе Mongo
+			...(meta?.session !== undefined && { session: meta.session }),
+			...(meta?.requestId !== undefined && { comment: meta.requestId })
 		};
 	}
 
@@ -688,8 +688,8 @@ export abstract class MongoServiceModule<
 	) {
 		return {
 			...options,
-			session: meta.session,
-			comment: meta.requestId // критично: привязываем запрос ко всем операциям в логе Mongo
+			...(meta?.session !== undefined && { session: meta.session }),
+			...(meta?.requestId !== undefined && { comment: meta.requestId })
 		};
 	}
 
@@ -743,8 +743,8 @@ export abstract class MongoServiceModule<
 	) {
 		return {
 			...options,
-			session: meta.session,
-			comment: meta.requestId // критично: привязываем запрос ко всем операциям в логе Mongo
+			...(meta?.session !== undefined && { session: meta.session }),
+			...(meta?.requestId !== undefined && { comment: meta.requestId })
 		};
 	}
 
@@ -1040,8 +1040,8 @@ export abstract class MongoServiceModule<
 	) {
 		return {
 			...options,
-			session: meta.session,
-			comment: meta.requestId // критично: привязываем запрос ко всем операциям в логе Mongo
+			...(meta?.session !== undefined && { session: meta.session }),
+			...(meta?.requestId !== undefined && { comment: meta.requestId })
 		};
 	}
 
@@ -1198,8 +1198,8 @@ export abstract class MongoServiceModule<
 	) {
 		return {
 			...options,
-			session: meta.session,
-			comment: meta.requestId // критично: привязываем запрос ко всем операциям в логе Mongo
+			...(meta?.session !== undefined && { session: meta.session }),
+			...(meta?.requestId !== undefined && { comment: meta.requestId })
 		};
 	}
 
