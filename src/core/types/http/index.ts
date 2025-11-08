@@ -8,6 +8,7 @@
  */
 
 export * from './context';
+export * from './headers';
 
 export * from './Common';
 export * from './Controller';
