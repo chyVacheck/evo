@@ -18,7 +18,6 @@ import { ErrorResponse } from '@core/http/ErrorResponse';
 import { AnyHttpContext } from '@core/types';
 
 export class ErrorHandlerMiddleware extends FinallyMiddlewareModule<
-	typeof ErrorHandlerMiddleware.name,
 	AnyHttpContext,
 	Error
 > {
