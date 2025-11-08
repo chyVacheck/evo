@@ -13,7 +13,7 @@
  * ! my imports
  */
 import { ValidatedParamsState, ValidatedBodyState } from '@core/middleware';
-import { HttpContext, PathParamsOf } from '@core/types/http';
+import { HttpContextValidated, PathParamsOf } from '@core/types/http';
 import { HttpStatusCode, SuccessResponse } from '@core/http';
 import { ObjectIdParamsRequest } from '@core/dto';
 import { ControllerModule } from '@core/base';
@@ -32,10 +32,17 @@ export class UserController extends ControllerModule {
 	}
 
 	/** GET /user/:id */
+	/**
+	 * @description
+	 * Получение пользователя по ID.
+	 *
+	 * @param id - ID пользователя
+	 *
+	 * @response 200 SuccessResponse - Успешное получение пользователя
+	 */
 	public async getOneUserById(
-		ctx: HttpContext<
+		ctx: HttpContextValidated<
 			PathParamsOf<'/user/:id'>,
-			any,
 			any,
 			ValidatedParamsState<ObjectIdParamsRequest>
 		>
@@ -46,24 +53,31 @@ export class UserController extends ControllerModule {
 			id
 		});
 
-		const apiResponse = new SuccessResponse(
-			HttpStatusCode.OK,
-			'User found successfully',
-			{
+		const apiResponse = new SuccessResponse({
+			status: HttpStatusCode.OK,
+			message: 'User found successfully',
+			details: {
 				id: resp.getData()._id
 			},
-			resp.getData()
-		);
+			data: resp.getData()
+		});
 
 		ctx.reply.status(apiResponse.getStatusCode()).json(apiResponse.toJSON());
 	}
 
 	/** POST /user */
+	/**
+	 * @description
+	 * Создание нового пользователя.
+	 *
+	 * @requestBody CreateUserRequest - Данные для создания пользователя
+	 *
+	 * @response 201 SuccessResponse - Успешное создание пользователя
+	 */
 	public async createUser(
-		ctx: HttpContext<
+		ctx: HttpContextValidated<
 			PathParamsOf<'/user'>,
 			any,
-			any /** Body */,
 			ValidatedBodyState<CreateUserRequest>
 		>
 	): Promise<void> {
@@ -74,14 +88,14 @@ export class UserController extends ControllerModule {
 			body
 		});
 
-		const apiResponse = new SuccessResponse(
-			HttpStatusCode.CREATED,
-			'User created successfully',
-			{
+		const apiResponse = new SuccessResponse({
+			status: HttpStatusCode.CREATED,
+			message: 'User created successfully',
+			details: {
 				id: resp.getData()._id
 			},
-			resp.getData()
-		);
+			data: resp.getData()
+		});
 
 		ctx.reply.status(apiResponse.getStatusCode()).json(apiResponse.toJSON());
 	}

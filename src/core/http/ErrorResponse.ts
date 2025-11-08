@@ -56,7 +56,7 @@ export class ErrorResponse extends ApiResponse {
 		errors: Record<string, string> | null;
 		details: Record<string, any> | null;
 	}) {
-		super(errorCode.getHttpStatus(), message, details);
+		super({ status: errorCode.getHttpStatus(), message, details });
 
 		this.errorCode = errorCode;
 		this.errors = errors;

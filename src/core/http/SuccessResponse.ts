@@ -41,13 +41,18 @@ export class SuccessResponse<T> extends ApiResponse {
 	 * @param message сообщение для клиента
 	 * @param details дополнительные детали ответа
 	 */
-	public constructor(
-		status: HttpStatusCode,
-		message: string,
-		details: Record<string, any>,
-		data: T
-	) {
-		super(status, message, details);
+	public constructor({
+		status,
+		message,
+		details,
+		data
+	}: {
+		status: HttpStatusCode;
+		message: string;
+		details: Record<string, any>;
+		data: T;
+	}) {
+		super({ status, message, details });
 
 		// проверка на передачу коректного успешного кода
 		if (!status.isSuccess()) {

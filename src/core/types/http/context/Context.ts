@@ -63,6 +63,14 @@ export type HttpReply = {
 	send(data: string | Uint8Array | ArrayBuffer): void;
 };
 
+/**
+ * Контекст запроса.
+ *
+ * @template Params - Тип параметров пути (например, { id: string })
+ * @template Query - Тип query-параметров (например, { page: number })
+ * @template Body - Тип тела запроса (например, UserCreateDto)
+ * @template State - Тип состояния контекста, расширяющий { validated: {} }
+ */
 export type HttpContext<
 	Params extends HttpParams = {},
 	Query extends HttpQuery = {},
@@ -137,6 +145,22 @@ export type HttpContext<
 	 */
 	reply: HttpReply;
 };
+
+/**
+ * Контекст запроса с валидированными данными.
+ * @description
+ * Рекомендовано использовать в контроллерах, так как они должны работать с
+ * валидированными данными, а не с сырым body.
+ *
+ * @template Params - Тип параметров пути (например, { id: string })
+ * @template Query - Тип query-параметров (например, { page: number })
+ * @template State - Тип состояния контекста, расширяющий { validated: {} }
+ */
+export type HttpContextValidated<
+	Params extends HttpParams = {},
+	Query extends HttpQuery = {},
+	State extends object = {}
+> = HttpContext<Params, Query, unknown, State & { validated: {} }>;
 
 // удобные алиасы
 export type AnyHttpContext = HttpContext<any, any, any, any>;

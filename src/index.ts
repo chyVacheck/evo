@@ -22,5 +22,11 @@ const mongoDb = new MongoDatabase();
 
 await mongoDb.connect();
 
+await UserRepository.init(mongoDb);
+UserService.init(UserRepository.getInstance());
+
+// Монтируем роутеры
+evo.use(new ApiRouter());
+
 // Старт
 evo.listen({ port: SERVER_CONFIG.PORT });

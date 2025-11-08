@@ -40,11 +40,15 @@ export abstract class ApiResponse {
 	 * @param message текстовое сообщение
 	 * @param details дополнительные детали ответа
 	 */
-	public constructor(
-		status: HttpStatusCode,
-		message: string,
-		details: Record<string, any> | null
-	) {
+	public constructor({
+		status,
+		message,
+		details
+	}: {
+		status: HttpStatusCode;
+		message: string;
+		details: Record<string, any> | null;
+	}) {
 		this.status = status;
 		this.message = message;
 		this.details = details;
