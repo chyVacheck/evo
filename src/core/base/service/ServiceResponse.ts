@@ -13,7 +13,8 @@
 /**
  * ! my imports
  */
-import { TPagination, ServiceProcessType } from '@core/types';
+import { TPagination } from '@core/types';
+import { ServiceProcessType } from '@core/types/service';
 
 /**
  * Обобщённый ответ сервиса.
