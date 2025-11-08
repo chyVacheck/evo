@@ -38,15 +38,6 @@ export type HttpParams = Record<string, string>;
  */
 export type HttpQuery = Record<string, string | Array<string>>;
 /**
- * Тип заголовков запроса
- * @example
- * {
- * 	"Content-Type": "application/json",
- * 	"Authorization": "Bearer token"
- * }
- */
-export type HttpHeaders = Record<string, string>;
-/**
  * Cookies
  * @example
  * {

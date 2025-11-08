@@ -15,11 +15,14 @@ import { IncomingMessage, ServerResponse } from 'http';
 import {
 	EHttpMethod,
 	HttpCookies,
-	HttpHeaders,
 	HttpParams,
 	HttpPath,
 	HttpQuery
 } from '@core/types/http/Common';
+import {
+	HttpHeaders,
+	HttpHeadersWithBody
+} from '@core/types/http/headers/Headers';
 
 export type HttpReply = {
 	/**
@@ -77,14 +80,19 @@ export type HttpContext<
 	 */
 	url: string;
 	path: HttpPath;
+	/**
+	 * Парсинг pathname из URL (например, '/api/users/123' из '/api/users/123?query=123')
+	 */
 	pathname: string | undefined;
+	/**
+	 * Путь маршрута, на который пришёл запрос (например, '/api/users/:id')
+	 */
+	matchedPath: HttpPath;
 
 	/** Нормализованные заголовки с lowercased ключами */
-	headers: HttpHeaders;
-
+	headers: HttpHeaders | HttpHeadersWithBody;
 	/** Единый нормализованный IP клиента */
 	clientIp: string;
-
 	/** Куки (если не распарсили — undefined) */
 	cookies: HttpCookies | undefined;
 
@@ -93,20 +101,40 @@ export type HttpContext<
 	requestId: string;
 	/** Метка времени начала обработки запроса (устанавливается StartTimerMiddleware) */
 	startedAt: number;
-	/**
-	 * Путь маршрута, на который пришёл запрос (например, '/api/users/:id')
-	 */
-	matchedPath: HttpPath;
 
-	/** Разобранные части */
+	/**
+	 * Сырой тело запроса (если не распарсили — null)
+	 */
+	rawBody: Buffer | null;
+	/**
+	 * Размер сыраяго тела запроса (если не распарсили — 0)
+	 */
+	bodySize: number | null;
+	/**
+	 * Кодировка тела запроса (если не распарсили — 'utf-8')
+	 */
+	charset: BufferEncoding;
+	/**
+	 * Парсинг параметров из пути (например, { id: '123' } из '/api/users/:id')
+	 */
 	params: Params;
+	/**
+	 * Парсинг query-параметров из URL (например, { query: '123' } из '/api/users/123?query=123')
+	 */
 	query: Query;
+	/**
+	 * Парсинг тела запроса в объект (если не распарсили — null)
+	 */
 	body: Body;
 
-	/** Накопительное состояние от middleware */
+	/**
+	 * Накопительное состояние от middleware
+	 */
 	state: { validated: {} } & State;
 
-	/** Хелперы ответа */
+	/**
+	 * Хелперы ответа
+	 */
 	reply: HttpReply;
 };
 
