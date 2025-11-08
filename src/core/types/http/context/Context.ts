@@ -23,6 +23,7 @@ import {
 	HttpHeaders,
 	HttpHeadersWithBody
 } from '@core/types/http/headers/Headers';
+import { PathParamsOf } from '../Path';
 
 export type HttpReply = {
 	/**
@@ -157,10 +158,10 @@ export type HttpContext<
  * @template State - Тип состояния контекста, расширяющий { validated: {} }
  */
 export type HttpContextValidated<
-	Params extends HttpParams = {},
+	Url extends HttpPath,
 	Query extends HttpQuery = {},
 	State extends object = {}
-> = HttpContext<Params, Query, unknown, State & { validated: {} }>;
+> = HttpContext<PathParamsOf<Url>, Query, unknown, State & { validated: {} }>;
 
 // удобные алиасы
 export type AnyHttpContext = HttpContext<any, any, any, any>;

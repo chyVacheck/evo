@@ -42,7 +42,7 @@ export class UserController extends ControllerModule {
 	 */
 	public async getOneUserById(
 		ctx: HttpContextValidated<
-			PathParamsOf<'/user/:id'>,
+			'/user/:id',
 			any,
 			ValidatedParamsState<ObjectIdParamsRequest>
 		>
@@ -53,8 +53,7 @@ export class UserController extends ControllerModule {
 			id
 		});
 
-		const apiResponse = new SuccessResponse({
-			status: HttpStatusCode.OK,
+		const apiResponse = SuccessResponse.ok({
 			message: 'User found successfully',
 			details: {
 				id: resp.getData()._id
@@ -76,7 +75,7 @@ export class UserController extends ControllerModule {
 	 */
 	public async createUser(
 		ctx: HttpContextValidated<
-			PathParamsOf<'/user'>,
+			'/user',
 			any,
 			ValidatedBodyState<CreateUserRequest>
 		>
@@ -88,8 +87,7 @@ export class UserController extends ControllerModule {
 			body
 		});
 
-		const apiResponse = new SuccessResponse({
-			status: HttpStatusCode.CREATED,
+		const apiResponse = SuccessResponse.created({
 			message: 'User created successfully',
 			details: {
 				id: resp.getData()._id
