@@ -18,16 +18,16 @@ import { EModuleType, IControllerModule } from '@core/types';
  * Абстрактный класс, описывающий базовые свойства всех модулей:
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
-export abstract class ControllerModule<ModuleName extends string = string>
-	extends CoreModule<ModuleName>
-	implements IControllerModule<ModuleName>
+export abstract class ControllerModule
+	extends CoreModule
+	implements IControllerModule
 {
 	/**
 	 * Базовый конструктор Controller-модуля.
 	 *
 	 * @param moduleName - Название модуля
 	 */
-	protected constructor(moduleName: ModuleName) {
+	protected constructor(moduleName: string) {
 		super(EModuleType.CONTROLLER, moduleName);
 	}
 }

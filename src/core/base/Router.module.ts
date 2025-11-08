@@ -49,6 +49,7 @@ import {
 import { BaseModule } from '@core/base/Base.module';
 import { CryptoUtils } from '@core/utils';
 import { PayloadTooLargeException } from '@core/exceptions';
+import { RouteConflictError } from '@core/errors';
 
 type StateOfBefore<M> = M extends IBeforeMiddlewareModule<any, infer S>
 	? S
@@ -332,9 +333,12 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 			this.routes.set(method, new Map());
 		} else {
 			if (this.routes.get(method)!.has(fullPath)) {
-				const err = new Error(
-					`Route ${fullPath} for method ${method} already exists`
-				);
+				const err = new RouteConflictError({
+					method: method,
+					path: fullPath,
+					origin: this.getModuleName(),
+					fatal: true
+				});
 				this.fatal(
 					{
 						message: `Route ${fullPath} for method ${method} already exists`,

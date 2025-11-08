@@ -100,6 +100,16 @@ export abstract class MongoRepository<
 	}
 
 	/**
+	 * * === === === Indexes === === ===
+	 */
+
+	/**
+	 * @description
+	 * Создать индексы коллекции.
+	 */
+	abstract ensureIndexes(): Promise<void>;
+
+	/**
 	 * * === === === Build Options === === ===
 	 */
 

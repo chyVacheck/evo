@@ -9,3 +9,4 @@
 
 export * from './Service.module';
 export * from './MongoService.module';
+export * from './ServiceResponse';
