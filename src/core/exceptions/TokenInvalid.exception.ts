@@ -11,7 +11,7 @@
  */
 import { AppException } from '@core/exceptions/App.exception';
 import { ErrorCode } from '@core/exceptions/ErrorCode';
-import { Exception } from '@core/types/exceptions/Exception';
+import { ExceptionConstructor } from '@core/types/exceptions/Exception';
 
 /**
  * @description
@@ -21,8 +21,9 @@ export class TokenInvalidException extends AppException {
 	constructor({
 		message = `Token invalid`,
 		origin,
-		details = null
-	}: Omit<Exception, 'code'>) {
-		super(message, ErrorCode.TOKEN_INVALID, origin, details, null);
+		details = null,
+		errors = null
+	}: ExceptionConstructor) {
+		super(message, ErrorCode.TOKEN_INVALID, origin, details, errors);
 	}
 }

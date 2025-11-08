@@ -11,7 +11,7 @@
  */
 import { AppException } from '@core/exceptions/App.exception';
 import { ErrorCode } from '@core/exceptions/ErrorCode';
-import { Exception } from '@core/types/exceptions/Exception';
+import { ExceptionConstructor } from '@core/types/exceptions/Exception';
 
 /**
  * @description
@@ -21,8 +21,9 @@ export class UriTooLongException extends AppException {
 	constructor({
 		message = `URI Too Long`,
 		origin,
-		details = null
-	}: Omit<Exception, 'code'>) {
-		super(message, ErrorCode.URI_TOO_LONG, origin, details, null);
+		details = null,
+		errors = null
+	}: ExceptionConstructor) {
+		super(message, ErrorCode.URI_TOO_LONG, origin, details, errors);
 	}
 }

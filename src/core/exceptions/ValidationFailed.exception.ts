@@ -10,7 +10,7 @@
  */
 import { AppException } from '@core/exceptions/App.exception';
 import { ErrorCode } from '@core/exceptions/ErrorCode';
-import { Exception } from '@core/types/exceptions/Exception';
+import { ExceptionConstructor } from '@core/types/exceptions/Exception';
 
 /**
  * @description
@@ -24,7 +24,7 @@ export class ValidationFailedException extends AppException {
 		origin,
 		details = null,
 		errors = null
-	}: Omit<Exception, 'code'>) {
+	}: ExceptionConstructor) {
 		super(message, ErrorCode.VALIDATION_FAILED, origin, details, errors);
 	}
 }
