@@ -17,4 +17,3 @@ export * from './middleware';
 
 export * from './ControllerModule';
 export * from './ServiceModule';
-export * from './RepositoryModule';

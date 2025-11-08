@@ -50,7 +50,7 @@ export type TQueryOptions<T> = {
  * @example
  * { ctx: { requestId: '1234abcd', userId: '1234567890abcdef1234567890abcdef' }, driver: 'mongodb' }
  */
-export type TRepoCommonOpts = {
+export type TRepoCommonOpts<D = unknown> = {
 	ctx?: TRepoCtx;
-	driver?: unknown; // конкретный драйвер уточняет
+	driver?: D; // конкретный драйвер уточняет
 };
