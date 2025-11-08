@@ -1,15 +1,44 @@
-Copyright © Dmytro Shakh, 2025.
+# Evo Non-Commercial License v1.0
 
+Copyright © 2025 Dmytro Shakh  
 All rights reserved.
 
-This software and associated documentation files (the "Software") are the property of Dmytro Shakh. Unauthorized copying, modification, distribution, or any form of use of the Software, in whole or in part, is strictly prohibited without prior written permission from Dmytro Shakh.
+---
 
-By using this Software, you agree to the following terms:
+## 1. Permissions
 
-1. You shall not copy, modify, or distribute the Software or any part of it without explicit written permission.
-2. You shall not use the Software for commercial purposes without explicit written permission.
-3. You shall not reverse-engineer, decompile, or disassemble the Software.
+You are **granted the right** to:
 
-Violation of these terms may result in legal action.
+- Use, copy, and modify the source code of the Evo Framework;
+- Distribute modified or unmodified versions of the code;
+- Use the code for **educational, research, and personal** purposes.
 
-For inquiries or permissions, please contact: dmytro.4or.work@gmail.com
+---
+
+## 2. Restrictions
+
+You **may not**:
+
+- Use this project or any portion of it **for commercial purposes**, including selling, licensing, monetizing, or integrating into commercial products or services;
+- Remove or alter any copyright or author notices;
+- Claim authorship or ownership of this project or any part of it.
+
+---
+
+## 3. Ownership
+
+All intellectual property and ownership rights to the **Evo Framework** remain exclusively with the original author, **Dmytro Shakh**.
+
+Use of this software implies acceptance of the terms of this license.
+
+---
+
+## 4. Disclaimer of Warranty
+
+The software is provided **“as is”**, without any warranties, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement.
+
+In no event shall the author be liable for any claim, damages, or other liability arising from the use or inability to use the software.
+
+---
+
+For more information, visit the official Evo repository.
