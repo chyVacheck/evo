@@ -34,7 +34,7 @@ export class MongoDatabase extends BaseDatabase {
 	private readonly dbName: string;
 	private readonly defaultTimeoutMs: number;
 
-	constructor(opts: TMongoManagerOptions) {
+	constructor(opts?: TMongoManagerOptions) {
 		super(MongoDatabase.name, 'MongoDb', MONGO_DB_CONFIG.URL);
 
 		this.dbName = MONGO_DB_CONFIG.DB_NAME;
@@ -53,7 +53,11 @@ export class MongoDatabase extends BaseDatabase {
 				.connect()
 				.then(() => {
 					this.info({
-						message: `${this.getColorDatabaseName()} connected`
+						message: `${this.getColorDatabaseName()} connected successfully`,
+						details: {
+							dbName: this.dbName,
+							url: this.url
+						}
 					});
 					this.db ||= this.client.db(this.dbName);
 				})
