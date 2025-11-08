@@ -45,6 +45,7 @@ export * from './LoopDetected.exception';
 export * from './MaintenanceMode.exception';
 export * from './MethodNotAllowed.exception';
 export * from './MisdirectedRequest.exception';
+export * from './MissingHeader.exception';
 export * from './MissingRequiredField.exception';
 export * from './NetworkAuthenticationRequired.exception';
 export * from './NotAcceptable.exception';

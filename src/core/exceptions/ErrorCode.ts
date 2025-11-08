@@ -64,6 +64,13 @@ class ErrorCode {
 		HttpStatusCode.BAD_REQUEST
 	);
 	/**
+	 * @description Отсутствует обязательный `header` запроса
+	 */
+	static readonly MISSING_HEADER = new ErrorCode(
+		'MISSING_HEADER',
+		HttpStatusCode.BAD_REQUEST
+	);
+	/**
 	 * @description Отсутствует обязательное свойство
 	 */
 	static readonly MISSING_REQUIRED_FIELD = new ErrorCode(
