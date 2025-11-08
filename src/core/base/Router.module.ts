@@ -48,6 +48,7 @@ import {
 } from '@core/types';
 import { BaseModule } from '@core/base/Base.module';
 import { CryptoUtils } from '@core/utils';
+import { PayloadTooLargeException } from '@core/exceptions';
 
 type StateOfBefore<M> = M extends IBeforeMiddlewareModule<any, infer S>
 	? S
@@ -75,9 +76,11 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 {
 	protected prefix: HttpPath;
 	/** Глобальные middleware — массивы уже связанных функций */
-	protected globalBefore: Array<BeforeMiddlewareAction<Base, any>> = [];
-	protected globalAfter: Array<AfterMiddlewareAction<Base>> = [];
-	protected globalFinally: Array<FinallyMiddlewareAction<Base>> = [];
+	protected globalBefore: Array<BeforeMiddlewareAction<AnyHttpContext, any>> =
+		[];
+	protected globalAfter: Array<AfterMiddlewareAction<AnyHttpContext>> = [];
+	protected globalFinally: Array<FinallyMiddlewareAction<AnyHttpContext, any>> =
+		[];
 
 	/** Зарегистрированные маршруты (функции уже «плоские», без классов) */
 	protected routes: Map<
@@ -85,10 +88,10 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		Map<
 			HttpPath,
 			{
-				handler: ControllerAction<Base>;
-				before: Array<BeforeMiddlewareAction<Base, any>>;
-				after: Array<AfterMiddlewareAction<Base>>;
-				finally: Array<FinallyMiddlewareAction<Base>>;
+				handler: ControllerAction<AnyHttpContext>;
+				before: Array<BeforeMiddlewareAction<AnyHttpContext, any>>;
+				after: Array<AfterMiddlewareAction<AnyHttpContext>>;
+				finally: Array<FinallyMiddlewareAction<AnyHttpContext, any>>;
 				pathRegex: RegExp;
 				paramNames: Array<string>;
 			}
@@ -118,6 +121,17 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	}
 
 	/**
+	 * Парсит метод запроса из объекта входящего запроса.
+	 *
+	 * @param req Объект входящего запроса
+	 * @returns Метод запроса (например, GET, POST, PUT, DELETE)
+	 */
+	private parseMethod(req: http.IncomingMessage): EHttpMethod {
+		let method: EHttpMethod = (req.method as EHttpMethod) || EHttpMethod.GET;
+		return method;
+	}
+
+	/**
 	 * Парсит путь с параметрами и возвращает регулярное выражение и имена параметров.
 	 *
 	 * @param path Путь с параметрами (например, '/api/users/:id')
@@ -133,16 +147,17 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 			'^' +
 				path.replace(/\/:([^\/]+)/g, (_, paramName) => {
 					if (seenParamNames.has(paramName)) {
+						const err = new Error(
+							`Duplicate parameter name '${paramName}' in path '${path}'`
+						);
 						this.fatal(
 							{
 								message: `Duplicate parameter name '${paramName}' in path '${path}'`,
-								details: { paramName, path }
+								details: { paramName, path, error: err }
 							},
 							{ log: { save: false } }
 						);
-						throw new Error(
-							`Duplicate parameter name '${paramName}' in path '${path}'`
-						);
+						throw err;
 					}
 					seenParamNames.add(paramName);
 					paramNames.push(paramName);
@@ -151,6 +166,24 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 				'$'
 		);
 		return { pathRegex, paramNames };
+	}
+
+	/**
+	 * Парсит кодировку из заголовка Content-Type.
+	 *
+	 * @param ct Значение заголовка Content-Type
+	 * @returns Кодировка (например, 'utf-8', 'latin1', 'ascii')
+	 */
+	private parseCharset(ct: string | undefined): BufferEncoding {
+		if (!ct) return 'utf-8';
+		const m = /;\s*charset=([^;]+)/i.exec(ct);
+		const cs = m?.[1]?.trim().toLowerCase();
+		// маппинг к известным Node-энкодингам:
+		if (cs === 'utf8' || cs === 'utf-8') return 'utf-8';
+		if (cs === 'latin1' || cs === 'iso-8859-1') return 'latin1';
+		if (cs === 'ascii') return 'ascii';
+		// по умолчанию
+		return 'utf-8';
 	}
 
 	/**
@@ -201,8 +234,14 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	 * ? === === === GLOBAL MIDDLEWARE === === ===
 	 */
 
+	/**
+	 * Регистрация глобальных middleware перед обработкой маршрута.
+	 *
+	 * @param mods Массив модулей middleware, реализующих интерфейс IBeforeMiddlewareModule
+	 * @returns Экземпляр роутера (для цепочки вызовов)
+	 */
 	public useBefore(
-		...mods: Array<IBeforeMiddlewareModule<Base, object>>
+		...mods: Array<IBeforeMiddlewareModule<AnyHttpContext, any>>
 	): this {
 		this.globalBefore.push(
 			...mods.map(m => {
@@ -215,7 +254,15 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		return this;
 	}
 
-	public useAfter(...mods: Array<IAfterMiddlewareModule<Base>>): this {
+	/**
+	 * Регистрация глобальных middleware после обработки маршрута.
+	 *
+	 * @param mods Массив модулей middleware, реализующих интерфейс IAfterMiddlewareModule
+	 * @returns Экземпляр роутера (для цепочки вызовов)
+	 */
+	public useAfter(
+		...mods: Array<IAfterMiddlewareModule<AnyHttpContext>>
+	): this {
 		this.globalAfter.push(
 			...mods.map(m => {
 				this.debug({
@@ -227,7 +274,15 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		return this;
 	}
 
-	public finally(...mods: Array<IFinallyMiddlewareModule<Base, any>>): this {
+	/**
+	 * Регистрация глобальных middleware, выполняющихся всегда, вне зависимости от результата обработки маршрута.
+	 *
+	 * @param mods Массив модулей middleware, реализующих интерфейс IFinallyMiddlewareModule
+	 * @returns Экземпляр роутера (для цепочки вызовов)
+	 */
+	public finally(
+		...mods: Array<IFinallyMiddlewareModule<AnyHttpContext, any>>
+	): this {
 		this.globalFinally.push(
 			...mods.map(m => {
 				this.debug({
@@ -260,9 +315,9 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		const fullPath = this.joinPaths(this.prefix, path);
 		const { pathRegex, paramNames } = this.parsePath(fullPath);
 
-		// Запись в реестр с исходным Base-типа handler'a
+		// Запись в реестр с исходным AnyHttpContext-типа handler'a
 		const route = {
-			handler: handler as unknown as ControllerAction<Base>,
+			handler: handler as unknown as ControllerAction<AnyHttpContext>,
 			before: [...this.globalBefore],
 			after: [...this.globalAfter],
 			finally: [...this.globalFinally],
@@ -271,10 +326,24 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		};
 
 		/**
-		 * Добавляем карту маршруток в реестр, если по данному методу еще
+		 * Добавляем карту маршруток в реестр, если по данному методу еще нет
 		 */
 		if (!this.routes.has(method)) {
 			this.routes.set(method, new Map());
+		} else {
+			if (this.routes.get(method)!.has(fullPath)) {
+				const err = new Error(
+					`Route ${fullPath} for method ${method} already exists`
+				);
+				this.fatal(
+					{
+						message: `Route ${fullPath} for method ${method} already exists`,
+						details: { fullPath, path, method, error: err }
+					},
+					{ log: { save: false } }
+				);
+				throw err;
+			}
 		}
 		this.routes.get(method)!.set(fullPath, route);
 
@@ -315,8 +384,8 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
-		this.debug({
-			message: `GET route: ${path}`
+		this.info({
+			message: `GET route: ${this.joinPaths(this.prefix, path)}`
 		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.GET,
@@ -330,8 +399,8 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
-		this.debug({
-			message: `POST route: ${path}`
+		this.info({
+			message: `POST route: ${this.joinPaths(this.prefix, path)}`
 		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.POST,
@@ -345,8 +414,8 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
-		this.debug({
-			message: `PUT route: ${path}`
+		this.info({
+			message: `PUT route: ${this.joinPaths(this.prefix, path)}`
 		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.PUT,
@@ -360,8 +429,8 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
-		this.debug({
-			message: `PATCH route: ${path}`
+		this.info({
+			message: `PATCH route: ${this.joinPaths(this.prefix, path)}`
 		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.PATCH,
@@ -375,8 +444,8 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		path: Path,
 		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
 	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
-		this.debug({
-			message: `DELETE route: ${path}`
+		this.info({
+			message: `DELETE route: ${this.joinPaths(this.prefix, path)}`
 		});
 		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
 			EHttpMethod.DELETE,
@@ -386,10 +455,6 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	}
 
 	public mount(child: RouterModule<Base>): this {
-		this.debug({
-			message: `Registering child router: ${child.getModuleName()}`
-		});
-
 		// доступ к protected допустим, т.к. мы внутри того же класса
 		const childImpl = child;
 
@@ -402,7 +467,7 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 					this.routes.set(method, new Map());
 				}
 				this.routes.get(method)!.set(fullPath, {
-					handler: r.handler as ControllerAction<Base>,
+					handler: r.handler as ControllerAction<AnyHttpContext>,
 
 					// порядок цепочек:
 					// before: parent → child
@@ -418,6 +483,10 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 				});
 			}
 		}
+
+		this.debug({
+			message: `Registered child router: ${child.getModuleName()}`
+		});
 
 		return this;
 	}
@@ -463,16 +532,21 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		req: http.IncomingMessage,
 		res: http.ServerResponse
 	) {
-		const method: EHttpMethod = (req.method as EHttpMethod) || EHttpMethod.GET;
+		/**
+		 * Парсит метод запроса из объекта входящего запроса.
+		 */
+		const method = this.parseMethod(req);
 		const rawUrl = req.url || '/';
 
-		// 1) Разбор URL: отделяем pathname и query
+		// Разбор URL: отделяем pathname и query
 		const u = new URL(rawUrl, 'http://localhost'); // base нужен для Node
 		const pathname = (u.pathname || '/') as HttpPath; // RFC-декодированный путь без query/hash
 		const path = this.normalizePath(pathname); // канонический путь фреймворка
 		const query = this.parseQuery(u.searchParams); // Record<string, string | string[]>
+		// Генерация уникального requestId
+		const requestId = CryptoUtils.genRandomString();
 
-		// 2) Матчинг роутов — строго по path (без query)
+		// Матчинг роутов — строго по path (без query)
 		const match = this.matchRoute(method, path);
 		if (!match) {
 			res.statusCode = 404;
@@ -480,10 +554,10 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 			return;
 		}
 
-		// 3) Нормализация заголовков и парсинг cookies
+		// Нормализация заголовков и парсинг cookies
 		const headers = this.normalizeHeaders(req.headers);
 
-		// 4) Единый IP
+		// Единый IP
 		const forwardedFor = headers['x-forwarded-for'];
 		let clientIp = req.socket?.remoteAddress || '';
 		// Если есть X-Forwarded-For, берем первый IP
@@ -493,7 +567,7 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 			if (firstIp) clientIp = firstIp.trim();
 		}
 
-		// 5) Создание контекста запроса
+		// Создание контекста запроса
 		const ctx: AnyHttpContext = {
 			rawReq: req,
 			rawRes: res,
@@ -512,19 +586,46 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 			cookies: {},
 
 			/**
-			 * Генерируем уникальный requestId.
+			 * Уникальный requestId.
 			 */
-			requestId: CryptoUtils.genRandomString(),
+			requestId,
 			/**
 			 * Записываем время начала обработки запроса.
 			 */
 			startedAt: Date.now(),
+			/**
+			 * Сырой тело запроса (если не распарсили — null)
+			 */
+			rawBody: null,
+			/**
+			 * Размер сырого тела запроса (если не распарсили — 0)
+			 */
+			bodySize: null,
+			/**
+			 * Кодировка тела запроса (если не распарсили — 'utf-8')
+			 */
+			charset: this.parseCharset(req.headers['content-type'] ?? ''),
 
+			/**
+			 * Парсинг тела запроса в объект (если не распарсили — null)
+			 */
+			body: null,
+			/**
+			 * Парсинг параметров пути (например, /users/:id)
+			 */
 			params: match.params,
+			/**
+			 * Парсинг query-параметров (например, ?key=value)
+			 */
 			query,
-			body: {},
+			/**
+			 * Накопительное состояние от middleware
+			 */
 			state: {},
 
+			/**
+			 * Хелперы ответа
+			 */
 			reply: {
 				/**
 				 * Устанавливает HTTP-статус код ответа.
@@ -598,7 +699,7 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 		/**
 		 * Устанавливаем X-Request-Id в заголовки ответа
 		 */
-		ctx.reply.set('X-Request-Id', ctx.requestId);
+		ctx.reply.set('X-Request-Id', requestId);
 
 		let caughtError: unknown;
 
