@@ -235,6 +235,9 @@ export abstract class MongoRepository<
 			throw new Error('mergeAnd: parts must not be empty');
 		}
 
+		// если один фильтр — верни его без обёртки (TS любит это)
+		if (parts.length === 1) return parts[0]!;
+
 		return {
 			$and: parts
 		} as FilterMongo<TModel>;
@@ -507,49 +510,10 @@ export abstract class MongoRepository<
 	 * Обновление одного документа по его идентификатору с возвратом обновлённого документа.
 	 * @param {TModel['_id']} id идентификатор документа
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {ModifyOptions<TModel>} options опции обновления
-	 * @returns {Promise<WithId<TModel> | null>} обновлённый документ или null, если документ не найден
-	 */
-	public async modifyOneById(
-		id: TModel['_id'],
-		update: UpdateFilterMongo<TModel> | Partial<TModel>,
-		options?: ModifyOneOptions<TModel>
-	): Promise<WithId<TModel> | null> {
-		/** Создание фильтра по идентификатору. */
-		const filter: FilterMongo<TModel> = { _id: id };
-		/** Вызов метода обновления по фильтру. */
-		return this.modifyOneByFilter(filter, update, options);
-	}
-
-	/**
-	 * Обновление одного документа по фильтру с возвратом обновлённого документа.
-	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
-	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {ModifyOptions<TModel>} options опции обновления
-	 * @returns {Promise<WithId<TModel> | null>} обновлённый документ или null, если документ не найден
-	 */
-	public async modifyOneByFilter(
-		filter: FilterMongo<TModel>,
-		update: UpdateFilterMongo<TModel> | Partial<TModel>,
-		options?: ModifyOneOptions<TModel>
-	): Promise<WithId<TModel> | null> {
-		/** Создание опций обновления. */
-		const modifyOptions = this.buildModifyOptions(options);
-		/** Вызов метода обновления по фильтру. */
-		return await this.col().findOneAndUpdate(filter, update, {
-			...modifyOptions,
-			includeResultMetadata: false
-		});
-	}
-
-	/**
-	 * Обновление одного документа по его идентификатору с возвратом обновлённого документа.
-	 * @param {TModel['_id']} id идентификатор документа
-	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {ModifyOptions<TModel>} options опции обновления
+	 * @param {ModifyOneOptions<TModel>} options опции обновления
 	 * @returns {Promise<ModifyResult<TModel>>} данные о результате обновления
 	 */
-	public async modifyOneByIdRaw(
+	public async modifyOneById(
 		id: TModel['_id'],
 		update: UpdateFilterMongo<TModel> | Partial<TModel>,
 		options?: ModifyOneOptions<TModel>
@@ -557,17 +521,17 @@ export abstract class MongoRepository<
 		/** Применение видимости к фильтру, учитывая опции удаления. */
 		const filter: FilterMongo<TModel> = { _id: id };
 		/** Вызов метода обновления по фильтру. */
-		return this.modifyOneByFilterRaw(filter, update, options);
+		return this.modifyOneByFilter(filter, update, options);
 	}
 
 	/**
 	 * Обновление одного документа по фильтру с возвратом данных о обновлении документа.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {ModifyOptions<TModel>} options опции обновления
+	 * @param {ModifyOneOptions<TModel>} options опции обновления
 	 * @returns {Promise<ModifyResult<TModel>>} данные о результате обновления
 	 */
-	public async modifyOneByFilterRaw(
+	public async modifyOneByFilter(
 		filter: FilterMongo<TModel>,
 		update: UpdateFilterMongo<TModel> | Partial<TModel>,
 		options?: ModifyOneOptions<TModel>
