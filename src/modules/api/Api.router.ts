@@ -6,14 +6,11 @@
 /**
  * ! my imports
  */
-import { AnyHttpContext } from '@core/types';
+import { AppContext } from '@core/types';
 import { RouterModule } from '@core/base';
-import { HealthRouter } from '@modules/health/Health.router';
 import { UserRouter } from '@modules/user/User.router';
 
-type Base = AnyHttpContext;
-
-export class ApiRouter extends RouterModule<Base> {
+export class ApiRouter extends RouterModule<AppContext> {
 	constructor() {
 		super(ApiRouter.name, '/api');
 

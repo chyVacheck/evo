@@ -1,6 +1,6 @@
 /**
- * @file User.controller.ts
- * @module modules/user
+ * @file CreateUser.request.ts
+ * @module modules/user/request
  */
 
 /**

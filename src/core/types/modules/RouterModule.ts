@@ -27,8 +27,7 @@ import {
  * @description
  * Интерфейс модуля роутера.
  */
-export interface IRouterModule<Base extends AnyHttpContext = AnyHttpContext>
-	extends IBaseModule {
+export interface IRouterModule extends IBaseModule {
 	useBefore: (
 		...fns: Array<IBeforeMiddlewareModule<AnyHttpContext, any>>
 	) => this;
@@ -43,8 +42,8 @@ export interface IRouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	 */
 	get<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>>;
 
 	/**
 	 * @description
@@ -52,8 +51,8 @@ export interface IRouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	 */
 	post<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>>;
 
 	/**
 	 * @description
@@ -61,27 +60,27 @@ export interface IRouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	 */
 	put<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>>;
 	/**
 	 * @description
 	 * Регистрация маршрута для метода PATCH.
 	 */
 	patch<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>>;
 	/**
 	 * @description
 	 * Регистрация маршрута для метода DELETE.
 	 */
 	delete<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>>;
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>>;
 
 	/** Вложить дочерний роутер под префикс */
-	mount(child: IRouterModule<Base>): this;
+	mount(child: IRouterModule): this;
 }
 
 /**
@@ -98,7 +97,7 @@ export interface RouteScope<Content extends AnyHttpContext> {
 	finally: (
 		...mods: Array<IFinallyMiddlewareModule<Content, any>>
 	) => RouteScope<Content>;
-	done: () => IRouterModule<Content>;
+	done: () => IRouterModule;
 }
 
 // и добавь туда те же helper-типы:

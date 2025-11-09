@@ -16,7 +16,7 @@ import { SuccessResponse } from '@core/http';
 import { ObjectIdParamsRequest } from '@core/dto';
 import { ControllerModule } from '@core/base';
 import { UserService } from '@modules/user/User.service';
-import { CreateUserRequest } from '@modules/user/request/CreateUser.dto';
+import { CreateUserRequest } from '@modules/user/request/CreateUser.request';
 import { AppContextUnauthorized } from '@core/types/http/AppContext';
 
 export class UserController extends ControllerModule {

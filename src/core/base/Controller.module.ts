@@ -11,15 +11,15 @@
 /**
  * ! my imports
  */
-import { CoreModule } from '@core/base/Core.module';
 import { EModuleType, IControllerModule } from '@core/types';
+import { BaseModule } from '@core/base/Base.module';
 
 /**
  * Абстрактный класс, описывающий базовые свойства всех модулей:
  * тип и имя модуля. Используется как фундамент для логгирования и архитектурного разграничения.
  */
 export abstract class ControllerModule
-	extends CoreModule
+	extends BaseModule
 	implements IControllerModule
 {
 	/**

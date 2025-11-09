@@ -20,7 +20,7 @@ import {
 } from '@core/middleware';
 import { ObjectIdParamsSchema } from '@core/dto';
 import { UserController } from '@modules/user/User.controller';
-import { CreateUserSchema } from '@modules/user/request/CreateUser.dto';
+import { CreateUserSchema } from '@modules/user/request/CreateUser.request';
 
 export class UserRouter extends RouterModule<AnyHttpContext> {
 	private readonly controller = new UserController();

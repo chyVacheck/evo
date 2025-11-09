@@ -15,7 +15,7 @@ import { MongoServiceModule, ServiceResponse } from '@core/base';
 import { InitializationError } from '@core/errors';
 import { UserRepository } from '@modules/user/User.repository';
 import { UserModel } from '@modules/user/User.model';
-import { CreateUserRequest } from '@modules/user/request/CreateUser.dto';
+import { CreateUserRequest } from '@modules/user/request/CreateUser.request';
 
 export class UserService extends MongoServiceModule<UserModel> {
 	private static instance: UserService;

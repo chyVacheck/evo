@@ -74,7 +74,7 @@ type AccCtx<
  */
 export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 	extends BaseModule
-	implements IRouterModule<Base>
+	implements IRouterModule
 {
 	protected prefix: HttpPath;
 	/** Глобальные middleware — массивы уже связанных функций */
@@ -377,7 +377,7 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 				);
 				return scope as unknown as RouteScope<Context>;
 			},
-			done: () => this as unknown as IRouterModule<Context>
+			done: () => this as unknown as IRouterModule
 		};
 
 		return scope;
@@ -387,79 +387,69 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 
 	public get<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>> {
 		this.info({
 			message: `GET route: ${this.joinPaths(this.prefix, path)}`
 		});
-		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
-			EHttpMethod.GET,
-			path,
-			handler
-		);
+		return this.createRouteScope<
+			WithParams<AnyHttpContext, PathParamsOf<Path>>
+		>(EHttpMethod.GET, path, handler);
 	}
 
 	/** POST */
 	public post<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>> {
 		this.info({
 			message: `POST route: ${this.joinPaths(this.prefix, path)}`
 		});
-		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
-			EHttpMethod.POST,
-			path,
-			handler
-		);
+		return this.createRouteScope<
+			WithParams<AnyHttpContext, PathParamsOf<Path>>
+		>(EHttpMethod.POST, path, handler);
 	}
 
 	/** PUT */
 	public put<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>> {
 		this.info({
 			message: `PUT route: ${this.joinPaths(this.prefix, path)}`
 		});
-		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
-			EHttpMethod.PUT,
-			path,
-			handler
-		);
+		return this.createRouteScope<
+			WithParams<AnyHttpContext, PathParamsOf<Path>>
+		>(EHttpMethod.PUT, path, handler);
 	}
 
 	/** PATCH */
 	public patch<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>> {
 		this.info({
 			message: `PATCH route: ${this.joinPaths(this.prefix, path)}`
 		});
-		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
-			EHttpMethod.PATCH,
-			path,
-			handler
-		);
+		return this.createRouteScope<
+			WithParams<AnyHttpContext, PathParamsOf<Path>>
+		>(EHttpMethod.PATCH, path, handler);
 	}
 
 	/** DELETE */
 	public delete<Path extends HttpPath>(
 		path: Path,
-		handler: ControllerAction<WithParams<Base, PathParamsOf<Path>>>
-	): RouteScope<WithParams<Base, PathParamsOf<Path>>> {
+		handler: ControllerAction<WithParams<AnyHttpContext, PathParamsOf<Path>>>
+	): RouteScope<WithParams<AnyHttpContext, PathParamsOf<Path>>> {
 		this.info({
 			message: `DELETE route: ${this.joinPaths(this.prefix, path)}`
 		});
-		return this.createRouteScope<WithParams<Base, PathParamsOf<Path>>>(
-			EHttpMethod.DELETE,
-			path,
-			handler
-		);
+		return this.createRouteScope<
+			WithParams<AnyHttpContext, PathParamsOf<Path>>
+		>(EHttpMethod.DELETE, path, handler);
 	}
 
-	public mount(child: RouterModule<Base>): this {
+	public mount(child: RouterModule<AnyHttpContext>): this {
 		// доступ к protected допустим, т.к. мы внутри того же класса
 		const childImpl = child;
 
