@@ -12,13 +12,12 @@
 /**
  * ! my imports
  */
-import { ValidatedParamsState, ValidatedBodyState } from '@core/middleware';
-import { HttpContextValidated } from '@core/types/http';
 import { SuccessResponse } from '@core/http';
 import { ObjectIdParamsRequest } from '@core/dto';
 import { ControllerModule } from '@core/base';
 import { UserService } from '@modules/user/User.service';
 import { CreateUserRequest } from '@modules/user/request/CreateUser.dto';
+import { AppContextUnauthorized } from '@core/types/http/AppContext';
 
 export class UserController extends ControllerModule {
 	private service: UserService;
@@ -41,11 +40,7 @@ export class UserController extends ControllerModule {
 	 * @response 200 SuccessResponse - Успешное получение пользователя
 	 */
 	public async getOneUserById(
-		ctx: HttpContextValidated<
-			'/user/:id',
-			any,
-			ValidatedParamsState<ObjectIdParamsRequest>
-		>
+		ctx: AppContextUnauthorized<ObjectIdParamsRequest>
 	) {
 		const { id } = ctx.state.validated.params;
 		const resp = await this.service.getOneUserById({
@@ -61,10 +56,9 @@ export class UserController extends ControllerModule {
 			data: resp.getData()
 		});
 
-		ctx.reply.status(apiResponse.getStatusCode()).json(apiResponse.toJSON());
+		ctx.reply.fromApiResponse(apiResponse);
 	}
 
-	/** POST /user */
 	/**
 	 * @description
 	 * Создание нового пользователя.
@@ -74,11 +68,7 @@ export class UserController extends ControllerModule {
 	 * @response 201 SuccessResponse - Успешное создание пользователя
 	 */
 	public async createUser(
-		ctx: HttpContextValidated<
-			'/user',
-			any,
-			ValidatedBodyState<CreateUserRequest>
-		>
+		ctx: AppContextUnauthorized<any, any, CreateUserRequest>
 	): Promise<void> {
 		const { body } = ctx.state.validated;
 
@@ -95,6 +85,6 @@ export class UserController extends ControllerModule {
 			data: resp.getData()
 		});
 
-		ctx.reply.status(apiResponse.getStatusCode()).json(apiResponse.toJSON());
+		ctx.reply.fromApiResponse(apiResponse);
 	}
 }

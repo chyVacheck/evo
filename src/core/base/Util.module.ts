@@ -29,7 +29,7 @@ import { IUtilModule } from '@core/types';
 /**
  * Абстрактный базовый класс для утилитарных классов.
  */
-export abstract class BaseUtil extends CoreModule implements IUtilModule {
+export abstract class UtilModule extends CoreModule implements IUtilModule {
 	/**
 	 * Конструктор базового Util.
 	 * Устанавливает тип модуля как {@link EModuleType.UTIL}

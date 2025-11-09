@@ -14,7 +14,7 @@ import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
  * ! my imports
  */
 import { MONGO_DB_CONFIG } from '@config';
-import { BaseDatabase } from '@core/base/Database.module';
+import { DatabaseModule } from '@core/base/Database.module';
 
 /**
  * Параметры конструктора менеджера БД
@@ -24,9 +24,9 @@ export type TMongoManagerOptions = ConstructorParameters<typeof MongoClient>[1];
 /**
  * Class representing a mongo database module.
  *
- * @extends BaseDatabase
+ * @extends DatabaseModule
  */
-export class MongoDatabase extends BaseDatabase {
+export class MongoDatabase extends DatabaseModule {
 	private client: MongoClient;
 	private db: Db | null = null;
 	private connectingPromise: Promise<void> | null = null;

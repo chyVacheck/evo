@@ -24,8 +24,8 @@ export type ValidationState<
 > = {
 	/** Проверенные данные запроса */
 	validated: {
-		params?: TParams;
-		query?: TQuery;
-		body?: TBody;
+		params: TParams;
+		query: TQuery;
+		body: TBody;
 	};
 };

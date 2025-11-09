@@ -5,20 +5,20 @@
  * @description
  * Утилитарный класс для работы с криптографическими функциями.
  *
- * @extends BaseUtil
+ * @extends UtilModule
  *
- * @see BaseUtil
+ * @see UtilModule
  */
 
 /**
  * ! my imports
  */
-import { BaseUtil } from '@core/base';
+import { UtilModule } from '@core/base';
 
 /**
  * Утилиты для работы со строками.
  */
-class CryptoUtils extends BaseUtil {
+class CryptoUtils extends UtilModule {
 	constructor() {
 		super(CryptoUtils.name);
 	}

@@ -5,20 +5,20 @@
  * @description
  * Утилитарный класс для работы со строками.
  *
- * @extends BaseUtil
+ * @extends UtilModule
  *
- * @see BaseUtil
+ * @see UtilModule
  */
 
 /**
  * ! my imports
  */
-import { BaseUtil } from '@core/base';
+import { UtilModule } from '@core/base';
 
 /**
  * Утилиты для работы со строками.
  */
-class StringUtils extends BaseUtil {
+class StringUtils extends UtilModule {
 	public constructor() {
 		super(StringUtils.name);
 	}

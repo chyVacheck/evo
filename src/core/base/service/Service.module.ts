@@ -20,7 +20,7 @@
 /**
  * ! my imports
  */
-import { EModuleType, IServiceModule, TId } from '@core/types';
+import { EModuleType, IServiceModule } from '@core/types';
 import { BaseModule } from '@core/base/Base.module';
 
 /**

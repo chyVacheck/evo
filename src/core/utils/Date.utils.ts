@@ -5,21 +5,21 @@
  * @description
  * Класс для работы со временем.
  *
- * @extends BaseUtil
+ * @extends UtilModule
  *
- * @see BaseUtil
+ * @see UtilModule
  */
 
 /**
  * ! my imports
  */
-import { BaseUtil } from '@core/base';
+import { UtilModule } from '@core/base';
 import { StrictDateString } from '@core/types';
 
 /**
  * Утилиты для работы с датами.
  */
-class DateUtils extends BaseUtil {
+class DateUtils extends UtilModule {
 	public constructor() {
 		super(DateUtils.name);
 	}

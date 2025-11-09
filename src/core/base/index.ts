@@ -12,9 +12,10 @@ export * from './Util.module';
 export * from './Base.module';
 
 export * from './middleware';
+export * from './model';
+export * from './repository';
+export * from './service';
 
+export * from './Database.module';
 export * from './Router.module';
 export * from './Controller.module';
-export * from './service';
-export * from './repository';
-export * from './model';

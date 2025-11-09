@@ -1,5 +1,5 @@
 /**
- * @file User.controller.ts
+ * @file User.service.ts
  * @module modules/user
  */
 

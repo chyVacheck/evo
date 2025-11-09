@@ -13,13 +13,13 @@
  */
 import { ComposeState } from '@core/types/http/Middleware';
 import {
-	AnyHttpContext,
-	SystemState,
 	AuthState,
 	ValidationState,
 	MetricsState,
-	AnalyticsState
+	AnalyticsState,
+	HttpContext
 } from '@core/types/http/context';
+import { HttpParams, HttpQuery } from '@core/types/http/Common';
 
 /**
  * @interface AppContext
@@ -32,7 +32,6 @@ import {
  * Универсальный контекст приложения, объединяющий все ключевые состояния.
  *
  * Состав:
- * - **SystemState** — базовые данные запроса (requestId, startedAt и т.д.)
  * - **AuthState** — информация о текущем пользователе
  * - **ValidationState** — проверенные параметры запроса
  * - **MetricsState** — метрики производительности
@@ -50,16 +49,21 @@ import {
  */
 export type AppContext<
 	TUser = unknown,
-	TParams extends Record<string, any> = {},
-	TQuery extends Record<string, any> = {},
+	TParams extends HttpParams = {},
+	TQuery extends HttpQuery = {},
 	TBody = unknown
 > = ComposeState<
-	AnyHttpContext,
+	HttpContext<TParams, TQuery, TBody>,
 	[
-		SystemState,
 		AuthState<TUser>,
 		ValidationState<TParams, TQuery, TBody>,
 		MetricsState,
 		AnalyticsState
 	]
 >;
+
+export type AppContextUnauthorized<
+	TParams extends HttpParams = {},
+	TQuery extends HttpQuery = {},
+	TBody = unknown
+> = AppContext<unknown, TParams, TQuery, TBody>;

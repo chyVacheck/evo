@@ -23,9 +23,11 @@ import {
 	HttpHeaders,
 	HttpHeadersWithBody
 } from '@core/types/http/headers/Headers';
+import { SuccessResponse } from '@core/http';
 import { PathParamsOf } from '../Path';
 
 export type HttpReply = {
+	fromApiResponse<T = unknown>(response: SuccessResponse<T>): HttpReply;
 	/**
 	 * Устанавливает HTTP-статус ответа.
 	 *
@@ -153,7 +155,7 @@ export type HttpContext<
  * Рекомендовано использовать в контроллерах, так как они должны работать с
  * валидированными данными, а не с сырым body.
  *
- * @template Params - Тип параметров пути (например, { id: string })
+ * @template Url - Тип параметров пути (например, { id: string })
  * @template Query - Тип query-параметров (например, { page: number })
  * @template State - Тип состояния контекста, расширяющий { validated: {} }
  */

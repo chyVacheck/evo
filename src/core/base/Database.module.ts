@@ -16,7 +16,7 @@ import { EModuleType, EColor } from '@core/types';
  * @abstract
  * @extends BaseModule
  */
-export abstract class BaseDatabase extends BaseModule {
+export abstract class DatabaseModule extends BaseModule {
 	/** URL для подключения к базе данных */
 	protected readonly url: string;
 	/** Название базы данных */

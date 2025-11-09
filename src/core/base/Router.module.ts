@@ -50,6 +50,7 @@ import { BaseModule } from '@core/base/Base.module';
 import { CryptoUtils } from '@core/utils';
 import { PayloadTooLargeException } from '@core/exceptions';
 import { RouteConflictError } from '@core/errors';
+import { SuccessResponse } from '@core/http';
 
 type StateOfBefore<M> = M extends IBeforeMiddlewareModule<any, infer S>
 	? S
@@ -632,16 +633,30 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 			 */
 			reply: {
 				/**
+				 * Устанавливает HTTP-статус код ответа,
+				 * а также JSON-ответ с данными из SuccessResponse.
+				 */
+				fromApiResponse: (response: SuccessResponse<any>) => {
+					ctx.reply.status(response.getStatusCode()).json(response.toJSON());
+					return ctx.reply;
+				},
+				/**
 				 * Устанавливает HTTP-статус код ответа.
 				 */
 				status: (code: number) => {
 					res.statusCode = code;
 					return ctx.reply;
 				},
+				/**
+				 * Устанавливает заголовок ответа.
+				 */
 				set: (name: string, value: string) => {
 					res.setHeader(name, value);
 					return ctx.reply;
 				},
+				/**
+				 * Устанавливает JSON-ответ.
+				 */
 				json: (data: unknown) => {
 					const buf = Buffer.from(JSON.stringify(data));
 					/**
@@ -658,6 +673,9 @@ export abstract class RouterModule<Base extends AnyHttpContext = AnyHttpContext>
 					res.setHeader('X-Response-Time', `${Date.now() - ctx.startedAt}`);
 					res.end(buf);
 				},
+				/**
+				 * Устанавливает текстовый ответ.
+				 */
 				text: (data: string) => {
 					/**
 					 * Устанавливаем Content-Type в text/plain.

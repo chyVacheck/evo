@@ -8,9 +8,9 @@
  * - deleteFileAsync — безопасное удаление (глушит ENOENT)
  * - sync-аналоги сохранены для обратной совместимости
  *
- * @extends BaseUtil
+ * @extends UtilModule
  *
- * @see BaseUtil
+ * @see UtilModule
  */
 
 /**
@@ -23,12 +23,12 @@ import path from 'node:path';
 /**
  * ! my imports
  */
-import { BaseUtil } from '@core/base';
+import { UtilModule } from '@core/base';
 
 /**
  * Утилиты для работы с файловой системой
  */
-class FileUtils extends BaseUtil {
+class FileUtils extends UtilModule {
 	public constructor() {
 		super(FileUtils.name);
 	}
