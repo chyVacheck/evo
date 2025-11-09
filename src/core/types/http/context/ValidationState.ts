@@ -8,6 +8,11 @@
  */
 
 /**
+ * ! my imports
+ */
+import { UploadedFile } from '@core/types/common';
+
+/**
  * @interface ValidationState
  * @template TParams - Тип объекта параметров (по умолчанию пустой объект)
  * @template TQuery - Тип объекта query параметров (по умолчанию пустой объект)
@@ -27,5 +32,6 @@ export type ValidationState<
 		params: TParams;
 		query: TQuery;
 		body: TBody;
+		files: Array<UploadedFile>;
 	};
 };

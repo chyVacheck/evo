@@ -15,7 +15,8 @@ import {
 	AnyHttpContext,
 	EHttpMethod,
 	EHttpHeaders,
-	HttpHeadersWithBody
+	HttpHeadersWithBody,
+	UploadedFile
 } from '@core/types';
 import {
 	EmptyPayloadException,
@@ -132,13 +133,14 @@ export class ParseBodyMiddleware extends BeforeMiddlewareModule<
 			chunks.push(buf);
 		}
 		const raw = chunks.length ? Buffer.concat(chunks) : null;
+		const contentType = headers[EHttpHeaders.ContentType];
 
 		this.info({
 			message: 'Request body read',
 			details: {
 				method: ctx.method,
 				size,
-				'content-type': headers[EHttpHeaders.ContentType],
+				'content-type': contentType,
 				'content-length': headers[EHttpHeaders.ContentLength] ?? null,
 				'transfer-encoding': headers[EHttpHeaders.TransferEncoding] ?? null
 			}
@@ -169,8 +171,6 @@ export class ParseBodyMiddleware extends BeforeMiddlewareModule<
 		/**
 		 * ? Определение типа тела
 		 */
-
-		const contentType = headers[EHttpHeaders.ContentType];
 
 		const ct = Array.isArray(contentType) ? contentType[0] : contentType ?? ''; // string | ''
 		const base = ct.split(';')[0]?.trim().toLowerCase() || ''; // например 'application/json'
@@ -230,10 +230,21 @@ export class ParseBodyMiddleware extends BeforeMiddlewareModule<
 			case 'image':
 			case 'audio':
 			case 'video':
-			case 'multipart':
 			case 'message':
 			case 'model': {
 				parsed = ctx.rawBody;
+				break;
+			}
+
+			case 'multipart': {
+				const boundary = this.getBoundary(ct);
+				if (!boundary) {
+					throw new EmptyPayloadException({
+						message: 'Missing boundary in Content-Type for multipart/form-data',
+						origin: this.getModuleName()
+					});
+				}
+				parsed = this.parseMultipartFormData(ctx.rawBody, boundary, enc);
 				break;
 			}
 
@@ -275,5 +286,77 @@ export class ParseBodyMiddleware extends BeforeMiddlewareModule<
 		);
 
 		await next(ctx);
+	}
+
+	/**
+	 *  Извлечение границы для multipart/form-data
+	 */
+	private getBoundary(contentType: string): string | null {
+		const match = /boundary=(?<boundary>[^;]+)/i.exec(contentType);
+		return match?.groups?.boundary || null;
+	}
+
+	/**
+	 *  Парсинг multipart/form-data
+	 */
+	private parseMultipartFormData(
+		buffer: Buffer,
+		boundary: string,
+		encoding: BufferEncoding
+	): Record<string, any> {
+		const result: Record<string, any> = {
+			files: []
+		};
+		const parts = buffer.toString(encoding).split(`--${boundary}`);
+
+		for (let i = 1; i < parts.length - 1; i++) {
+			const part = parts[i];
+			const headersEnd = part!.indexOf('\r\n\r\n');
+			if (headersEnd === -1) continue;
+
+			const rawHeaders = part!.substring(0, headersEnd);
+			const body = part!.substring(headersEnd + 4);
+
+			const headers: Record<string, string> = {};
+			rawHeaders.split('\r\n').forEach(header => {
+				const separatorIndex = header.indexOf(':');
+				if (separatorIndex > -1) {
+					const name = header.substring(0, separatorIndex).trim().toLowerCase();
+					const value = header.substring(separatorIndex + 1).trim();
+					headers[name] = value;
+				}
+			});
+
+			const contentDisposition = headers[EHttpHeaders.ContentDisposition];
+			if (contentDisposition) {
+				const nameMatch = /name="(?<name>[^"]+)"/.exec(contentDisposition);
+				const name = nameMatch?.groups?.name;
+
+				if (name) {
+					const filenameMatch = /filename="(?<filename>[^"]+)"/.exec(
+						contentDisposition
+					);
+					const filename = filenameMatch?.groups?.filename;
+
+					if (filename) {
+						// Это файл
+						const contentType = headers[EHttpHeaders.ContentType];
+						const file: UploadedFile = {
+							filename,
+							mimetype: contentType!,
+							size: body.length,
+							encoding,
+							buffer: Buffer.from(body.trim(), encoding) // Сохраняем как Buffer
+						};
+						result.files.push(file);
+					} else {
+						// Это обычное поле формы
+						result[name] = body.trim();
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 }

@@ -11,3 +11,4 @@ export * from './Color';
 export * from './Date';
 export * from './Dot';
 export * from './Primitives';
+export * from './UploadedFile';

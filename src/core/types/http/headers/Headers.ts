@@ -39,5 +39,6 @@ export type HttpHeaderValue = string | Array<string>;
 export enum EHttpHeaders {
 	ContentType = 'content-type',
 	ContentLength = 'content-length',
-	TransferEncoding = 'transfer-encoding'
+	TransferEncoding = 'transfer-encoding',
+	ContentDisposition = 'content-disposition'
 }

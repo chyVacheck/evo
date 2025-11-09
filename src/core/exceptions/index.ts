@@ -31,6 +31,7 @@ export * from './InternalError.exception';
 export * from './InvalidBody.exception';
 export * from './InvalidFieldValue.exception';
 export * from './InvalidHeader.exception';
+export * from './InvalidMimeType.exception';
 export * from './InvalidPaginationLimit.exception';
 export * from './InvalidPassword.exception';
 export * from './InvalidPathParameters.exception';
