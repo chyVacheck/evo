@@ -15,18 +15,18 @@ import { ClientSession } from 'mongodb';
  * ! my imports
  */
 import {
-	InsertOneOptions as InsertOneOptionsRepo,
-	InsertManyOptions as InsertManyOptionsRepo,
-	FindOneOptions as FindOneOptionsRepo,
-	FindManyOptions as FindManyOptionsRepo,
-	CountOptions as CountOptionsRepo,
-	ExistsOptions as ExistsOptionsRepo,
-	UpdateOneOptions as UpdateOneOptionsRepo,
-	UpdateManyOptions as UpdateManyOptionsRepo,
-	ModifyOneOptions as ModifyOneOptionsRepo,
-	DeleteOneOptions as DeleteOneOptionsRepo,
-	DeleteManyOptions as DeleteManyOptionsRepo,
-	TId
+	type InsertOneOptionsRepo,
+	type InsertManyOptionsRepo,
+	type FindOneOptionsRepo,
+	type FindManyOptionsRepo,
+	type CountOptionsRepo,
+	type ExistsOptionsRepo,
+	type UpdateOneOptionsRepo,
+	type UpdateManyOptionsRepo,
+	type ModifyOneOptionsRepo,
+	type DeleteOneOptionsRepo,
+	type DeleteManyOptionsRepo,
+	type TId
 } from '@core/types/repository';
 
 export type ServiceMeta<TAuthorId = TId> = {

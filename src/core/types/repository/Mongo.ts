@@ -21,7 +21,7 @@ import {
 /**
  * ! my imports
  */
-import { DotNestedKeys } from '@core/types/common';
+import { type DotNestedKeys } from '@core/types/common';
 
 /**
  * @description
@@ -122,7 +122,7 @@ interface BaseInsertOptions {
  * @description
  * Узкие, удобные опции для insertOne.
  */
-export interface InsertOneOptions<T> extends BaseInsertOptions {
+export interface InsertOneOptionsRepo<T> extends BaseInsertOptions {
 	// пока без доп-полей; если в проекте используется writeConcern на уровне операций,
 	// можно добавить: writeConcern?: WriteConcern;
 }
@@ -131,7 +131,7 @@ export interface InsertOneOptions<T> extends BaseInsertOptions {
  * @description
  * Узкие, удобные опции для insertMany.
  */
-export interface InsertManyOptions<T> extends BaseInsertOptions {
+export interface InsertManyOptionsRepo<T> extends BaseInsertOptions {
 	/**
 	 * Порядок выполнения (ordered):
 	 * - true (по умолчанию): остановится на первой ошибке
@@ -163,7 +163,7 @@ interface FilterOptions<T> {
  * @description
  * Общие опции фильтрации для чтения
  */
-export interface FilterReadOptions<T> extends FilterOptions<T> {
+export interface FilterReadOptionsRepo<T> extends FilterOptions<T> {
 	/**
 	 * @description
 	 * Препаратив чтения: 'primary' | 'primaryPreferred' | 'secondary' | 'secondaryPreferred' | 'nearest'
@@ -175,7 +175,7 @@ export interface FilterReadOptions<T> extends FilterOptions<T> {
  * @description
  * Узкие, удобные опции findOneByFilter
  */
-export interface FindOneOptions<T> extends FilterReadOptions<T> {
+export interface FindOneOptionsRepo<T> extends FilterReadOptionsRepo<T> {
 	/**
 	 * @description
 	 * Проекция: 0|1 по ключам сущности (включая вложенные пути) + _id
@@ -192,7 +192,7 @@ export interface FindOneOptions<T> extends FilterReadOptions<T> {
  * @description
  * Пагинация (offset-based)
  */
-export interface FindManyOptions<T> extends FindOneOptions<T> {
+export interface FindManyOptionsRepo<T> extends FindOneOptionsRepo<T> {
 	/**
 	 * @description
 	 * Сколько элементов пропустить (offset) (0+)
@@ -213,7 +213,7 @@ export interface FindManyOptions<T> extends FindOneOptions<T> {
  * @description
  * Узкие, удобные опции existsByFilter
  */
-export interface ExistsOptions<T> extends FilterReadOptions<T> {}
+export interface ExistsOptionsRepo<T> extends FilterReadOptionsRepo<T> {}
 
 /**
  * * === === === Count === === ===
@@ -223,7 +223,7 @@ export interface ExistsOptions<T> extends FilterReadOptions<T> {}
  * @description
  * Узкие, удобные опции countByFilter
  */
-export interface CountOptions<T> extends FilterReadOptions<T> {}
+export interface CountOptionsRepo<T> extends FilterReadOptionsRepo<T> {}
 
 /**
  * ? === === === UPDATE === === ===
@@ -233,7 +233,7 @@ export interface CountOptions<T> extends FilterReadOptions<T> {}
  * @description
  * Узкие, удобные опции обновления одной сущности
  */
-export interface UpdateOneOptions<T> extends FilterOptions<T> {
+export interface UpdateOneOptionsRepo<T> extends FilterOptions<T> {
 	upsert?: boolean;
 	arrayFilters?: Array<Record<string, unknown>>;
 	/** Если true, то игнорируется валидация документа на сервере. */
@@ -246,13 +246,14 @@ export interface UpdateOneOptions<T> extends FilterOptions<T> {
  * @description
  * Узкие, удобные опции обновления многих сущностей
  */
-export interface UpdateManyOptions<T> extends UpdateOneOptions<T> {}
+export interface UpdateManyOptionsRepo<T> extends UpdateOneOptionsRepo<T> {}
 
 /**
  * @description
  * Узкие, удобные опции обновления одной сущности
  */
-export interface ModifyOneOptions<T> extends Omit<UpdateOneOptions<T>, 'hint'> {
+export interface ModifyOneOptionsRepo<T>
+	extends Omit<UpdateOneOptionsRepo<T>, 'hint'> {
 	hint?: Document;
 	readPreference?: ReadPreferenceLike;
 	projection?: ProjectionFor<T>;
@@ -269,7 +270,7 @@ export interface ModifyOneOptions<T> extends Omit<UpdateOneOptions<T>, 'hint'> {
  * @description
  * Узкие, удобные опции удаления одной сущности
  */
-export interface DeleteOneOptions<T> extends FilterOptions<T> {
+export interface DeleteOneOptionsRepo<T> extends FilterOptions<T> {
 	collation?: CollationOptions;
 }
 
@@ -277,4 +278,4 @@ export interface DeleteOneOptions<T> extends FilterOptions<T> {
  * @description
  * Узкие, удобные опции удаления многих сущностей
  */
-export interface DeleteManyOptions<T> extends DeleteOneOptions<T> {}
+export interface DeleteManyOptionsRepo<T> extends DeleteOneOptionsRepo<T> {}

@@ -8,7 +8,6 @@
 /**
  * ! my imports
  */
-import { ICoreModule } from '@core/types/modules/CoreModule';
+import { type ICoreModule } from '@core/types/modules/CoreModule';
 
-export interface IUtilModule<ModuleName extends string = string>
-	extends ICoreModule<ModuleName> {}
+export interface IUtilModule extends ICoreModule {}
