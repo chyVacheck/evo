@@ -23,3 +23,9 @@ export type Builtin =
 	| Function
 	| Uint8Array
 	| ArrayBuffer;
+
+/**
+ * @description
+ * Тип, который может быть равен значению T или null
+ */
+export type Nullable<T> = T | null;

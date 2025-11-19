@@ -22,6 +22,7 @@ import {
  * ! my imports
  */
 import { type DotNestedKeys } from '@core/types/common';
+import { ProjectionCore, SortSpec } from '@core/types/repository/Common';
 
 /**
  * @description
@@ -38,36 +39,24 @@ export type BaseDoc = Document & { _id?: TId };
 
 /**
  * @description
- * Направление сортировки: 1 | -1 | 'asc' | 'desc' | 'ascending' | 'descending'
- */
-export type Direction = 1 | -1 | 'asc' | 'desc' | 'ascending' | 'descending';
-
-/**
- * @description
- * Базовая проекция: 0|1 по всем путям сущности, КРОМЕ '_id'
- */
-export type ProjectionCore<T> = Partial<Record<DotNestedKeys<T>, 0 | 1>>;
-
-/**
- * @description
  * Проекция с обязательным включением _id:
  * - _id можно не указывать (вернётся по умолчанию),
  * - если указывать — то только 1;
  * - _id: 0 запрещён типами.
  */
-export type ProjectionFor<T> = { _id?: 1 } & ProjectionCore<T>;
+export type MongoProjectionFor<T> = { _id?: 1 } & ProjectionCore<T>;
 
 /**
  * @description
  * Сортировка: 1|-1 по ключам сущности (включая вложенные пути)
  */
-export type SortSpec<T> = Sort & Partial<Record<DotNestedKeys<T>, Direction>>;
+export type SortMongoSpec<T> = Sort & SortSpec<T>;
 
 /**
  * @description
  * Подсказка индекса: строка имени индекса или спецификация полей
  */
-export type HintSpec<T> =
+export type HintMongoSpec<T> =
 	| string
 	| Document
 	| Partial<Record<DotNestedKeys<T>, 1 | -1>>;
@@ -77,7 +66,7 @@ export type HintSpec<T> =
  * Общие write-опции для операций вставки (insertOne/insertMany).
  * Минимальный набор, близкий к драйверу MongoDB.
  */
-interface BaseInsertOptions {
+interface BaseMongoInsertOptions {
 	/**
 	 * Сессия MongoDB (для транзакций).
 	 */
@@ -122,7 +111,7 @@ interface BaseInsertOptions {
  * @description
  * Узкие, удобные опции для insertOne.
  */
-export interface InsertOneOptionsRepo<T> extends BaseInsertOptions {
+export interface InsertOneMongoOptionsRepo<T> extends BaseMongoInsertOptions {
 	// пока без доп-полей; если в проекте используется writeConcern на уровне операций,
 	// можно добавить: writeConcern?: WriteConcern;
 }
@@ -131,7 +120,7 @@ export interface InsertOneOptionsRepo<T> extends BaseInsertOptions {
  * @description
  * Узкие, удобные опции для insertMany.
  */
-export interface InsertManyOptionsRepo<T> extends BaseInsertOptions {
+export interface InsertManyMongoOptionsRepo<T> extends BaseMongoInsertOptions {
 	/**
 	 * Порядок выполнения (ordered):
 	 * - true (по умолчанию): остановится на первой ошибке
@@ -148,11 +137,11 @@ export interface InsertManyOptionsRepo<T> extends BaseInsertOptions {
  * @description
  * Общие опции фильтрации для чтения
  */
-interface FilterOptions<T> {
+interface FilterMongoOptions<T> {
 	/** Максимальное время выполнения запроса в миллисекундах */
 	maxTimeMS?: number;
 	/** Подсказка индекса для ускорения поиска */
-	hint?: HintSpec<T>;
+	hint?: HintMongoSpec<T>;
 	/** Сессия MongoDB для транзакций */
 	session?: ClientSession;
 	/** Комментарий к запросу, отображается в логи MongoDB */
@@ -163,7 +152,7 @@ interface FilterOptions<T> {
  * @description
  * Общие опции фильтрации для чтения
  */
-export interface FilterReadOptionsRepo<T> extends FilterOptions<T> {
+export interface FilterReadMongoOptionsRepo<T> extends FilterMongoOptions<T> {
 	/**
 	 * @description
 	 * Препаратив чтения: 'primary' | 'primaryPreferred' | 'secondary' | 'secondaryPreferred' | 'nearest'
@@ -175,24 +164,26 @@ export interface FilterReadOptionsRepo<T> extends FilterOptions<T> {
  * @description
  * Узкие, удобные опции findOneByFilter
  */
-export interface FindOneOptionsRepo<T> extends FilterReadOptionsRepo<T> {
+export interface FindOneMongoOptionsRepo<T>
+	extends FilterReadMongoOptionsRepo<T> {
 	/**
 	 * @description
 	 * Проекция: 0|1 по ключам сущности (включая вложенные пути) + _id
 	 */
-	projection?: ProjectionFor<T>;
+	projection?: MongoProjectionFor<T>;
 	/**
 	 * @description
 	 * Сортировка: 1|-1 по ключам сущности (включая вложенные пути)
 	 */
-	sort?: SortSpec<T>;
+	sort?: SortMongoSpec<T>;
 }
 
 /**
  * @description
  * Пагинация (offset-based)
  */
-export interface FindManyOptionsRepo<T> extends FindOneOptionsRepo<T> {
+export interface FindManyMongoOptionsRepo<T>
+	extends FindOneMongoOptionsRepo<T> {
 	/**
 	 * @description
 	 * Сколько элементов пропустить (offset) (0+)
@@ -213,7 +204,8 @@ export interface FindManyOptionsRepo<T> extends FindOneOptionsRepo<T> {
  * @description
  * Узкие, удобные опции existsByFilter
  */
-export interface ExistsOptionsRepo<T> extends FilterReadOptionsRepo<T> {}
+export interface ExistsMongoOptionsRepo<T>
+	extends FilterReadMongoOptionsRepo<T> {}
 
 /**
  * * === === === Count === === ===
@@ -223,7 +215,8 @@ export interface ExistsOptionsRepo<T> extends FilterReadOptionsRepo<T> {}
  * @description
  * Узкие, удобные опции countByFilter
  */
-export interface CountOptionsRepo<T> extends FilterReadOptionsRepo<T> {}
+export interface CountMongoOptionsRepo<T>
+	extends FilterReadMongoOptionsRepo<T> {}
 
 /**
  * ? === === === UPDATE === === ===
@@ -233,7 +226,7 @@ export interface CountOptionsRepo<T> extends FilterReadOptionsRepo<T> {}
  * @description
  * Узкие, удобные опции обновления одной сущности
  */
-export interface UpdateOneOptionsRepo<T> extends FilterOptions<T> {
+export interface UpdateOneMongoOptionsRepo<T> extends FilterMongoOptions<T> {
 	upsert?: boolean;
 	arrayFilters?: Array<Record<string, unknown>>;
 	/** Если true, то игнорируется валидация документа на сервере. */
@@ -246,18 +239,19 @@ export interface UpdateOneOptionsRepo<T> extends FilterOptions<T> {
  * @description
  * Узкие, удобные опции обновления многих сущностей
  */
-export interface UpdateManyOptionsRepo<T> extends UpdateOneOptionsRepo<T> {}
+export interface UpdateManyMongoOptionsRepo<T>
+	extends UpdateOneMongoOptionsRepo<T> {}
 
 /**
  * @description
  * Узкие, удобные опции обновления одной сущности
  */
-export interface ModifyOneOptionsRepo<T>
-	extends Omit<UpdateOneOptionsRepo<T>, 'hint'> {
+export interface ModifyOneMongoOptionsRepo<T>
+	extends Omit<UpdateOneMongoOptionsRepo<T>, 'hint'> {
 	hint?: Document;
 	readPreference?: ReadPreferenceLike;
-	projection?: ProjectionFor<T>;
-	sort?: SortSpec<T>;
+	projection?: MongoProjectionFor<T>;
+	sort?: SortMongoSpec<T>;
 	/** Наш флаг: если true — вернуть обновлённый документ */
 	returnUpdated?: boolean;
 }
@@ -270,7 +264,7 @@ export interface ModifyOneOptionsRepo<T>
  * @description
  * Узкие, удобные опции удаления одной сущности
  */
-export interface DeleteOneOptionsRepo<T> extends FilterOptions<T> {
+export interface DeleteOneMongoOptionsRepo<T> extends FilterMongoOptions<T> {
 	collation?: CollationOptions;
 }
 
@@ -278,4 +272,5 @@ export interface DeleteOneOptionsRepo<T> extends FilterOptions<T> {
  * @description
  * Узкие, удобные опции удаления многих сущностей
  */
-export interface DeleteManyOptionsRepo<T> extends DeleteOneOptionsRepo<T> {}
+export interface DeleteManyMongoOptionsRepo<T>
+	extends DeleteOneMongoOptionsRepo<T> {}

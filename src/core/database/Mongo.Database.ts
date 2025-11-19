@@ -1,6 +1,8 @@
 /**
  * @file Mongo.Database.ts
  * @module core/database
+ * @description
+ * Реализация модуля работы с MongoDB.
  *
  * @author Dmytro Shakh
  */
@@ -14,7 +16,7 @@ import { MongoClient, Db, Collection, Document, ClientSession } from 'mongodb';
  * ! my imports
  */
 import { MONGO_DB_CONFIG } from '@config';
-import { DatabaseModule } from '@core/base/Database.module';
+import { DatabaseModule } from '@core/base';
 
 /**
  * Параметры конструктора менеджера БД

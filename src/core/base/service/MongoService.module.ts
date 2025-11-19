@@ -51,7 +51,7 @@ import {
 	UpdateManyOptions,
 	UpdateOneOptions
 } from '@core/types/service';
-import { BaseDoc, ProjectionFor } from '@core/types';
+import { BaseDoc, MongoProjectionFor } from '@core/types';
 
 /**
  * @description
@@ -67,11 +67,6 @@ export abstract class MongoServiceModule<
 	protected repo: MongoRepository<TModel>;
 
 	/**
-	 * Имя для исключений.
-	 */
-	protected readonly origin: string;
-
-	/**
 	 * Базовый конструктор MongoService-модуля.
 	 *
 	 * @param moduleName - Название модуля
@@ -80,8 +75,6 @@ export abstract class MongoServiceModule<
 		super(moduleName);
 
 		this.repo = repo;
-		/** Имя для исключений. */
-		this.origin = this.getModuleName();
 	}
 
 	/**
@@ -529,7 +522,7 @@ export abstract class MongoServiceModule<
 					projection: {
 						...(options.projection ?? {}),
 						_id: 1
-					} as ProjectionFor<TModel>
+					} as MongoProjectionFor<TModel>
 			  }
 			: options;
 
@@ -739,7 +732,7 @@ export abstract class MongoServiceModule<
 	 */
 	private toRepoUpdateOpts(
 		options: UpdateOneOptions<TModel> | UpdateManyOptions<TModel> | undefined,
-		meta: ServiceMeta
+		meta?: ServiceMeta
 	) {
 		return {
 			...options,
@@ -793,7 +786,7 @@ export abstract class MongoServiceModule<
 		}
 
 		// Если сущность не обновлена, то выбрасываем исключение.
-		if (updateRes.upsertedCount === 0) {
+		if (updateRes.matchedCount === 0) {
 			const err = new EntityNotFoundException({
 				message: `${this.repo.getEntityName()} not found`,
 				origin: this.origin,
@@ -806,6 +799,11 @@ export abstract class MongoServiceModule<
 				error: err
 			});
 			throw err;
+		}
+
+		// Если сущность не обновлена, то возвращаем 0 обновленных сущностей.
+		if (updateRes.modifiedCount === 0) {
+			return ServiceResponse.nothingWrite(updateRes.modifiedCount);
 		}
 
 		/** Возвращаем количество обновленных сущностей в ответе. */
@@ -832,7 +830,7 @@ export abstract class MongoServiceModule<
 		update,
 		options
 	}: {
-		meta: ServiceMeta;
+		meta?: ServiceMeta;
 		filter: FilterMongo<TModel>;
 		update: UpdateFilterMongo<TModel> | Partial<TModel>;
 		options?: UpdateOneOptions<TModel>;
@@ -853,7 +851,7 @@ export abstract class MongoServiceModule<
 				details: { filter }
 			});
 			this.error({
-				requestId: meta.requestId,
+				requestId: meta?.requestId,
 				message: `${this.repo.getEntityName()} not updated`,
 				details: { filter, options },
 				error: err
@@ -862,15 +860,15 @@ export abstract class MongoServiceModule<
 		}
 
 		// Если сущность не обновлена, то выбрасываем исключение.
-		if (updateRes.upsertedCount === 0) {
+		if (updateRes.matchedCount === 0) {
 			// Если сущность не обновлена, то выбрасываем исключение.
 			const err = new EntityNotFoundException({
 				message: `${this.repo.getEntityName()} not found`,
 				origin: this.origin,
-				details: { filter }
+				details: { filter, updateRes }
 			});
 			this.error({
-				requestId: meta.requestId,
+				requestId: meta?.requestId,
 				message: `${this.repo.getEntityName()} not updated`,
 				details: { filter, options },
 				error: err
@@ -878,8 +876,13 @@ export abstract class MongoServiceModule<
 			throw err;
 		}
 
+		// Если сущность не обновлена, то возвращаем 0 обновленных сущностей.
+		if (updateRes.modifiedCount === 0) {
+			return ServiceResponse.nothingWrite(updateRes.modifiedCount);
+		}
+
 		/** Возвращаем количество обновленных сущностей в ответе. */
-		return ServiceResponse.updated(updateRes.upsertedCount);
+		return ServiceResponse.updated(updateRes.modifiedCount);
 	}
 
 	/**
@@ -907,9 +910,9 @@ export abstract class MongoServiceModule<
 		update: UpdateFilterMongo<TModel> | Partial<TModel>;
 		options?: DeleteManyOptions<TModel>;
 	}): Promise<ServiceResponse<number>> {
-		// Если список идентификаторов пуст, то возвращаем 0 удаленных сущностей.
+		// Если список идентификаторов пуст, то возвращаем 0 обновленных сущностей.
 		if (ids.length === 0) {
-			return ServiceResponse.deleted(0);
+			return ServiceResponse.nothingWrite(0);
 		}
 		/** Преобразуем опции обновления сущностей в опции репозитория. */
 		const repoOpts = this.toRepoUpdateOpts(options, meta);
@@ -931,8 +934,8 @@ export abstract class MongoServiceModule<
 			throw err;
 		}
 
-		// Если сущности не обновлены, то выбрасываем исключение.
-		if (updateRes.modifiedCount === 0) {
+		// Если ни одна сущность не найдена, то выбрасываем исключение.
+		if (updateRes.matchedCount === 0) {
 			const err = new EntityNotFoundException({
 				message: `No ${this.repo.getEntityName()} matched for update`,
 				origin: this.origin,
@@ -945,6 +948,11 @@ export abstract class MongoServiceModule<
 				error: err
 			});
 			throw err;
+		}
+
+		// Если ни одна сущность не обновлена, то возвращаем 0 обновленных сущностей.
+		if (updateRes.modifiedCount === 0) {
+			return ServiceResponse.nothingWrite(updateRes.modifiedCount);
 		}
 
 		/** Возвращаем количество обновленных сущностей в ответе. */
@@ -1000,8 +1008,8 @@ export abstract class MongoServiceModule<
 			throw err;
 		}
 
-		// Если сущности не обновлены, то выбрасываем исключение.
-		if (updateRes.modifiedCount === 0) {
+		// Если сущность не обновлена, то возвращаем 0 обновленных сущностей.
+		if (updateRes.matchedCount === 0) {
 			const err = new EntityNotFoundException({
 				message: `No ${this.repo.getEntityName()} matched for update`,
 				origin: this.origin,
@@ -1014,6 +1022,11 @@ export abstract class MongoServiceModule<
 				error: err
 			});
 			throw err;
+		}
+
+		// Если ни одна сущность не обновлена, то возвращаем 0 обновленных сущностей.
+		if (updateRes.modifiedCount === 0) {
+			return ServiceResponse.nothingWrite(updateRes.modifiedCount);
 		}
 
 		/** Возвращаем количество обновленных сущностей в ответе. */

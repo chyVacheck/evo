@@ -13,6 +13,7 @@ export * from './error';
 export * from './exceptions';
 export * from './http';
 export * from './logger';
+export * from './model';
 export * from './modules';
 export * from './repository';
-// export * from './service'; // todo переименовать
+export * from './service';

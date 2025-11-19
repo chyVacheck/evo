@@ -1,6 +1,6 @@
 /**
  * @file index.ts
- * @module modules/file
+ * @module modules/user/request
  */
 
 export * from './CreateUser.request';

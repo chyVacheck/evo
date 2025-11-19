@@ -25,9 +25,14 @@ import path from 'path';
 /**
  * ! my imports
  */
-import { CoreModule } from '@core/base';
-import { EModuleType, ILogStored, StrictDateString } from '@core/types';
 import { LOGGER_CONFIG } from '@config';
+import { CoreModule } from '@core/base';
+import { FileUtils } from '@core/utils';
+import {
+	EModuleType,
+	type ILogStored,
+	type StrictDateString
+} from '@core/types';
 
 /**
  * Утилита для чтения лог-файлов
@@ -58,22 +63,26 @@ export class LogReader extends CoreModule {
 	 * @param {StrictDateString} date Строка даты в формате YYYY-MM-DD
 	 * @returns Список путей или пустой массив, если файлов нет
 	 */
-	private getLogFilesForDate(date: StrictDateString): Array<string> {
-		const basePath = path.join(LOGGER_CONFIG.FILE.PATH, date);
+	private async getLogFilesForDate(
+		date: StrictDateString
+	): Promise<Array<string>> {
+		const basePath = FileUtils.buildPath(LOGGER_CONFIG.FILE.PATH, date);
 		const files: string[] = [];
 
-		if (!fs.existsSync(basePath)) return [];
+		if (!(await FileUtils.fileExists(basePath))) return [];
 
 		const hours = fs
 			.readdirSync(basePath)
-			.filter(name => fs.statSync(path.join(basePath, name)).isDirectory());
+			.filter(name =>
+				fs.statSync(FileUtils.buildPath(basePath, name)).isDirectory()
+			);
 
 		for (const hour of hours) {
-			const hourPath = path.join(basePath, hour);
+			const hourPath = FileUtils.buildPath(basePath, hour);
 			const jsonFiles = fs
 				.readdirSync(hourPath)
 				.filter(file => file.endsWith('.json'))
-				.map(file => path.join(hourPath, file));
+				.map(file => FileUtils.buildPath(hourPath, file));
 
 			files.push(...jsonFiles);
 		}
@@ -120,8 +129,10 @@ export class LogReader extends CoreModule {
 	 * @param {StrictDateString} date Строка даты в формате YYYY-MM-DD
 	 * @returns Массив сжатых логов
 	 */
-	public getLogsByDate(date: StrictDateString): Array<ILogStored> {
-		const files = this.getLogFilesForDate(date);
+	public async getLogsByDate(
+		date: StrictDateString
+	): Promise<Array<ILogStored>> {
+		const files = await this.getLogFilesForDate(date);
 		return this.readLogsFromFiles(files);
 	}
 }

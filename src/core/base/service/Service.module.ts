@@ -32,6 +32,13 @@ export abstract class ServiceModule
 	implements IServiceModule
 {
 	/**
+	 * Имя для исключений.
+	 */
+	protected get origin(): string {
+		return this.getModuleName();
+	}
+
+	/**
 	 * Базовый конструктор Service-модуля.
 	 *
 	 * @param moduleName - Название модуля

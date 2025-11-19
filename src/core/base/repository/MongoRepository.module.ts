@@ -42,17 +42,17 @@ import {
  * ! my imports
  */
 import {
-	type FindOneOptionsRepo,
-	type FindManyOptionsRepo,
-	type CountOptionsRepo,
-	type ExistsOptionsRepo,
-	type UpdateOneOptionsRepo,
-	type UpdateManyOptionsRepo,
-	type ModifyOneOptionsRepo,
-	type DeleteOneOptionsRepo,
-	type DeleteManyOptionsRepo,
-	type InsertOneOptionsRepo,
-	type InsertManyOptionsRepo
+	type FindOneMongoOptionsRepo,
+	type FindManyMongoOptionsRepo,
+	type CountMongoOptionsRepo,
+	type ExistsMongoOptionsRepo,
+	type UpdateOneMongoOptionsRepo,
+	type UpdateManyMongoOptionsRepo,
+	type ModifyOneMongoOptionsRepo,
+	type DeleteOneMongoOptionsRepo,
+	type DeleteManyMongoOptionsRepo,
+	type InsertOneMongoOptionsRepo,
+	type InsertManyMongoOptionsRepo
 } from '@core/types';
 import { RepositoryModule } from '@core/base/repository/Repository.module';
 import { MongoDatabase } from '@core/database';
@@ -71,10 +71,6 @@ export abstract class MongoRepository<
 > extends RepositoryModule {
 	/** Менеджер подключения к MongoDB. */
 	protected readonly mongo: MongoDatabase;
-	/** Имя коллекции. */
-	protected readonly collectionName: string;
-	/** Имя сущности. */
-	protected readonly entityName: string;
 
 	/**
 	 * Конструктор базового репозитория для MongoDB.
@@ -88,13 +84,9 @@ export abstract class MongoRepository<
 		collectionName: string,
 		entityName: string
 	) {
-		super(moduleName);
+		super(moduleName, collectionName, entityName);
 		/** Менеджер подключения к MongoDB. */
 		this.mongo = mongo;
-		/** Имя коллекции. */
-		this.collectionName = collectionName;
-		/** Имя сущности. */
-		this.entityName = entityName;
 	}
 
 	/**
@@ -202,7 +194,7 @@ export abstract class MongoRepository<
 	 * - прочие опции: maxTimeMS, hint, readPreference, session, comment
 	 */
 	protected buildFindOptions(
-		o?: FindOneOptionsRepo<TModel>,
+		o?: FindOneMongoOptionsRepo<TModel>,
 		extra?: Pick<FindOptionsMongo, 'limit' | 'skip'>
 	): FindOptionsMongo {
 		return {
@@ -222,7 +214,9 @@ export abstract class MongoRepository<
 	 * Построить опции подсчет с учётом всех ключевых опций.
 	 * - опции: maxTimeMS, hint, readPreference, session, comment
 	 */
-	protected buildCountOptions(o?: CountOptionsRepo<TModel>): CountOptionsMongo {
+	protected buildCountOptions(
+		o?: CountMongoOptionsRepo<TModel>
+	): CountOptionsMongo {
 		return {
 			...(o?.maxTimeMS !== undefined && { maxTimeMS: o.maxTimeMS }),
 			...(o?.hint && { hint: o.hint }),
@@ -242,7 +236,7 @@ export abstract class MongoRepository<
 	 * - comment: string
 	 */
 	protected buildUpdateOptions(
-		o?: UpdateOneOptionsRepo<TModel>
+		o?: UpdateOneMongoOptionsRepo<TModel>
 	): UpdateOptionsMongo {
 		return {
 			...(o?.upsert !== undefined && { upsert: o.upsert }),
@@ -265,7 +259,7 @@ export abstract class MongoRepository<
 	 * - прочие опции: maxTimeMS, hint, readPreference, session, comment
 	 */
 	protected buildModifyOptions(
-		o?: ModifyOneOptionsRepo<TModel>
+		o?: ModifyOneMongoOptionsRepo<TModel>
 	): ModifyOptionsMongo {
 		let returnDocument: 'after' | 'before' = 'after';
 		if (o?.returnUpdated !== undefined) {
@@ -298,7 +292,7 @@ export abstract class MongoRepository<
 	 * - comment: string
 	 */
 	protected buildDeleteOptions(
-		o?: DeleteOneOptionsRepo<TModel>
+		o?: DeleteOneMongoOptionsRepo<TModel>
 	): DeleteOptionsMongo {
 		return {
 			...(o?.maxTimeMS !== undefined && { maxTimeMS: o.maxTimeMS }),
@@ -324,6 +318,7 @@ export abstract class MongoRepository<
 		 * Проверяем на пустой массив parts.
 		 */
 		if (parts.length === 0) {
+			// todo: поменять на другую ошибку
 			throw new Error('mergeAnd: parts must not be empty');
 		}
 
@@ -339,25 +334,7 @@ export abstract class MongoRepository<
 	 * Получить коллекцию.
 	 */
 	protected col(): Collection<TModel> {
-		return this.mongo.getCollection<TModel>(this.collectionName);
-	}
-
-	/**
-	 * ? === === === Public === === ===
-	 */
-
-	/**
-	 * Получить имя коллекции.
-	 */
-	public getCollectionName(): string {
-		return this.collectionName;
-	}
-
-	/**
-	 * Получить имя сущности.
-	 */
-	public getEntityName(): string {
-		return this.entityName;
+		return this.mongo.getCollection<TModel>(this.getEntitiesGroup());
 	}
 
 	/**
@@ -371,12 +348,12 @@ export abstract class MongoRepository<
 	/**
 	 * Вставка документа.
 	 * @param {OptionalUnlessRequiredIdMongo<TModel>} doc документ для вставки
-	 * @param {InsertOneOptionsRepo<TModel>} options опции вставки (session, comment, bypassDocumentValidation и т.д.)
+	 * @param {InsertOneMongoOptionsRepo<TModel>} options опции вставки (session, comment, bypassDocumentValidation и т.д.)
 	 * @returns {Promise<WithId<TModel>>} вставленный документ (полностью, повторно прочитанный из БД)
 	 */
 	public async insertOne(
 		doc: OptionalUnlessRequiredIdMongo<TModel>,
-		options?: InsertOneOptionsRepo<TModel>
+		options?: InsertOneMongoOptionsRepo<TModel>
 	): Promise<InsertOneResultMongo<TModel>> {
 		return await this.col().insertOne(doc, options);
 	}
@@ -384,12 +361,12 @@ export abstract class MongoRepository<
 	/**
 	 * Вставка нескольких документов.
 	 * @param {ReadonlyArray<OptionalUnlessRequiredIdMongo<TModel>>} docs документы для вставки
-	 * @param {InsertManyOptionsRepo<TModel>} options опции вставки (session, comment, bypassDocumentValidation и т.д.)
+	 * @param {InsertManyMongoOptionsRepo<TModel>} options опции вставки (session, comment, bypassDocumentValidation и т.д.)
 	 * @returns {Promise<InsertManyResultMongo<TModel>>} вставленные документы (полностью, повторно прочитанные из БД)
 	 */
 	public async insertMany(
 		docs: ReadonlyArray<OptionalUnlessRequiredIdMongo<TModel>>,
-		options?: InsertManyOptionsRepo<TModel>
+		options?: InsertManyMongoOptionsRepo<TModel>
 	): Promise<InsertManyResultMongo<TModel>> {
 		if (docs.length === 0) {
 			return { acknowledged: true, insertedCount: 0, insertedIds: {} };
@@ -405,12 +382,12 @@ export abstract class MongoRepository<
 	/**
 	 * Поиск одного документа по id с поддержкой всех ключевых опций.
 	 * @param {TModel['_id']} id id сущности
-	 * @param {FindOneOptionsRepo<TModel>} options опции поиска
+	 * @param {FindOneMongoOptionsRepo<TModel>} options опции поиска
 	 * @returns {WithId<TModel> | null} найденный документ или null
 	 */
 	public async findOneById(
 		id: TModel['_id'],
-		options?: FindOneOptionsRepo<TModel>
+		options?: FindOneMongoOptionsRepo<TModel>
 	): Promise<WithId<TModel> | null> {
 		/** Фильтр для поиска по идентификатору. */
 		const filter: FilterMongo<TModel> = { _id: id };
@@ -426,7 +403,7 @@ export abstract class MongoRepository<
 	 */
 	public async findOneByFilter(
 		filter: FilterMongo<TModel>,
-		options?: FindOneOptionsRepo<TModel>
+		options?: FindOneMongoOptionsRepo<TModel>
 	): Promise<WithId<TModel> | null> {
 		/** Строим опции поиска с учётом всех ключевых опций. */
 		const findOptions = this.buildFindOptions(options);
@@ -442,7 +419,7 @@ export abstract class MongoRepository<
 	 */
 	public async findManyByIds(
 		ids: Array<TModel['_id']>,
-		options: FindManyOptionsRepo<TModel>
+		options: FindManyMongoOptionsRepo<TModel>
 	): Promise<Array<WithId<TModel>>> {
 		/** Фильтр для поиска по идентификаторам. */
 		const filter: FilterMongo<TModel> = {
@@ -455,13 +432,13 @@ export abstract class MongoRepository<
 	/**
 	 * Поиск множества документов по типизированному фильтру с offset-пагинацией.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
-	 * @param {FindManyOptionsRepo<TModel>} options опции поиска
+	 * @param {FindManyMongoOptionsRepo<TModel>} options опции поиска
 	 * @returns {Promise<Array<WithId<TModel>>>} список документов или пустой массив
 	 
 	 */
 	public async findManyByFilter(
 		filter: FilterMongo<TModel>,
-		options: FindManyOptionsRepo<TModel>
+		options: FindManyMongoOptionsRepo<TModel>
 	): Promise<Array<WithId<TModel>>> {
 		/** Строим опции поиска с учётом всех ключевых опций. */
 		const findOptions = this.buildFindOptions(options, {
@@ -479,12 +456,12 @@ export abstract class MongoRepository<
 	/**
 	 * Проверка существования документа по фильтру.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
-	 * @param {ExistsOptionsRepo<TModel>} options опции поиска
+	 * @param {ExistsMongoOptionsRepo<TModel>} options опции поиска
 	 * @returns {boolean} true, если документ существует, иначе false
 	 */
 	public async existsByFilter(
 		filter: FilterMongo<TModel>,
-		options?: ExistsOptionsRepo<TModel>
+		options?: ExistsMongoOptionsRepo<TModel>
 	): Promise<boolean> {
 		/** Строим опции поиска с учётом всех ключевых опций. */
 		const findOptions = this.buildFindOptions(options, {
@@ -501,12 +478,12 @@ export abstract class MongoRepository<
 	/**
 	 * Подсчёт количества документов, удовлетворяющих фильтру.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
-	 * @param {CountOptionsRepo<TModel>} options опции подсчёта
+	 * @param {CountMongoOptionsRepo<TModel>} options опции подсчёта
 	 * @returns {number} количество документов
 	 */
 	public async countByFilter(
 		filter: FilterMongo<TModel>,
-		options?: CountOptionsRepo<TModel>
+		options?: CountMongoOptionsRepo<TModel>
 	): Promise<number> {
 		/** Строим опции поиска с учётом всех ключевых опций. */
 		const countOptions = this.buildCountOptions(options);
@@ -526,13 +503,13 @@ export abstract class MongoRepository<
 	 * Обновление одного документа по его идентификатору.
 	 * @param {TModel['_id']} id идентификатор документа
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {UpdateOneOptionsRepo<TModel>} options опции обновления
+	 * @param {UpdateOneMongoOptionsRepo<TModel>} options опции обновления
 	 * @returns {Promise<UpdateResult<TModel>>} результат обновления
 	 */
 	public async updateOneById(
 		id: TModel['_id'],
 		update: UpdateFilterMongo<TModel> | Partial<TModel>,
-		options?: UpdateOneOptionsRepo<TModel>
+		options?: UpdateOneMongoOptionsRepo<TModel>
 	): Promise<UpdateResultMongo<TModel>> {
 		/** Создание фильтра по идентификатору. */
 		const filter: FilterMongo<TModel> = { _id: id };
@@ -544,13 +521,13 @@ export abstract class MongoRepository<
 	 * Обновление одного документа по фильтру.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {UpdateOneOptionsRepo<TModel>} options опции обновления
+	 * @param {UpdateOneMongoOptionsRepo<TModel>} options опции обновления
 	 * @returns {Promise<UpdateResult<TModel>>} результат обновления
 	 */
 	public async updateOneByFilter(
 		filter: FilterMongo<TModel>,
 		update: UpdateFilterMongo<TModel> | Partial<TModel>,
-		options?: UpdateOneOptionsRepo<TModel>
+		options?: UpdateOneMongoOptionsRepo<TModel>
 	): Promise<UpdateResultMongo<TModel>> {
 		/** Создание опций обновления. */
 		const updateOptions = this.buildUpdateOptions(options);
@@ -562,13 +539,13 @@ export abstract class MongoRepository<
 	 * Обновление многих документов по их идентификатору.
 	 * @param {Array<TModel['_id']>} ids идентификаторы документов
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {UpdateManyOptionsRepo<TModel>} options опции обновления
+	 * @param {UpdateManyMongoOptionsRepo<TModel>} options опции обновления
 	 * @returns {Promise<UpdateResult<TModel>>} результат обновления
 	 */
 	public async updateManyByIds(
 		ids: Array<TModel['_id']>,
 		update: UpdateFilterMongo<TModel> | Array<Document>,
-		options?: UpdateManyOptionsRepo<TModel>
+		options?: UpdateManyMongoOptionsRepo<TModel>
 	): Promise<UpdateResultMongo<TModel>> {
 		/** Создание фильтра по идентификатору. */
 		const filter: FilterMongo<TModel> = { _id: { $in: ids } };
@@ -580,13 +557,13 @@ export abstract class MongoRepository<
 	 * Обновление многих документов по фильтру.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {UpdateManyOptionsRepo<TModel>} options опции обновления
+	 * @param {UpdateManyMongoOptionsRepo<TModel>} options опции обновления
 	 * @returns {Promise<UpdateResult<TModel>>} результат обновления
 	 */
 	public async updateManyByFilter(
 		filter: FilterMongo<TModel>,
 		update: UpdateFilterMongo<TModel> | Array<Document>,
-		options?: UpdateManyOptionsRepo<TModel>
+		options?: UpdateManyMongoOptionsRepo<TModel>
 	): Promise<UpdateResultMongo<TModel>> {
 		/** Создание опций обновления. */
 		const updateOptions = this.buildUpdateOptions(options);
@@ -602,13 +579,13 @@ export abstract class MongoRepository<
 	 * Обновление одного документа по его идентификатору с возвратом обновлённого документа.
 	 * @param {TModel['_id']} id идентификатор документа
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {ModifyOneOptionsRepo<TModel>} options опции обновления
+	 * @param {ModifyOneMongoOptionsRepo<TModel>} options опции обновления
 	 * @returns {Promise<ModifyResult<TModel>>} данные о результате обновления
 	 */
 	public async modifyOneById(
 		id: TModel['_id'],
 		update: UpdateFilterMongo<TModel> | Partial<TModel>,
-		options?: ModifyOneOptionsRepo<TModel>
+		options?: ModifyOneMongoOptionsRepo<TModel>
 	): Promise<ModifyResultMongo<TModel>> {
 		/** Применение видимости к фильтру, учитывая опции удаления. */
 		const filter: FilterMongo<TModel> = { _id: id };
@@ -620,13 +597,13 @@ export abstract class MongoRepository<
 	 * Обновление одного документа по фильтру с возвратом данных о обновлении документа.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
 	 * @param {UpdateFilter<TModel> | Partial<TModel>} update данные для обновления
-	 * @param {ModifyOneOptionsRepo<TModel>} options опции обновления
+	 * @param {ModifyOneMongoOptionsRepo<TModel>} options опции обновления
 	 * @returns {Promise<ModifyResult<TModel>>} данные о результате обновления
 	 */
 	public async modifyOneByFilter(
 		filter: FilterMongo<TModel>,
 		update: UpdateFilterMongo<TModel> | Partial<TModel>,
-		options?: ModifyOneOptionsRepo<TModel>
+		options?: ModifyOneMongoOptionsRepo<TModel>
 	): Promise<ModifyResultMongo<TModel>> {
 		/** Создание опций обновления. */
 		const modifyOptions = this.buildModifyOptions(options);
@@ -890,12 +867,12 @@ export abstract class MongoRepository<
 	/**
 	 * Удаление одного документа по его идентификатору.
 	 * @param {TModel['_id']} id идентификатор документа
-	 * @param {DeleteOneOptionsRepo<TModel>} options опции удаления
+	 * @param {DeleteOneMongoOptionsRepo<TModel>} options опции удаления
 	 * @returns {Promise<DeleteResultMongo>} данные о результате удаления
 	 */
 	public async deleteOneById(
 		id: TModel['_id'],
-		options?: DeleteOneOptionsRepo<TModel>
+		options?: DeleteOneMongoOptionsRepo<TModel>
 	): Promise<DeleteResultMongo> {
 		/** Создание фильтра по идентификатору. */
 		const filter: FilterMongo<TModel> = { _id: id };
@@ -906,12 +883,12 @@ export abstract class MongoRepository<
 	/**
 	 * Удаление одного документа по фильтру.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
-	 * @param {DeleteOneOptionsRepo<TModel>} options опции удаления
+	 * @param {DeleteOneMongoOptionsRepo<TModel>} options опции удаления
 	 * @returns {Promise<DeleteResultMongo>} данные о результате удаления
 	 */
 	public async deleteOneByFilter(
 		filter: FilterMongo<TModel>,
-		options?: DeleteOneOptionsRepo<TModel>
+		options?: DeleteOneMongoOptionsRepo<TModel>
 	): Promise<DeleteResultMongo> {
 		/** Фильтр для поиска. */
 		const deleteOptions = this.buildDeleteOptions(options);
@@ -922,12 +899,12 @@ export abstract class MongoRepository<
 	/**
 	 * Удаление многих документов по фильтру.
 	 * @param {Array<TModel['_id']>} ids массив идентификаторов документов
-	 * @param {DeleteManyOptionsRepo<TModel>} options опции удаления
+	 * @param {DeleteManyMongoOptionsRepo<TModel>} options опции удаления
 	 * @returns {Promise<DeleteResultMongo>} данные о результате удаления
 	 */
 	public async deleteManyByIds(
 		ids: Array<TModel['_id']>,
-		options?: DeleteManyOptionsRepo<TModel>
+		options?: DeleteManyMongoOptionsRepo<TModel>
 	): Promise<DeleteResultMongo> {
 		/** Проверка на пустой массив идентификаторов. */
 		if (ids.length === 0) {
@@ -942,12 +919,12 @@ export abstract class MongoRepository<
 	/**
 	 * Удаление многих документов по фильтру.
 	 * @param {FilterMongo<TModel>} filter строго типизированный фильтр
-	 * @param {DeleteManyOptionsRepo<TModel>} options опции удаления
+	 * @param {DeleteManyMongoOptionsRepo<TModel>} options опции удаления
 	 * @returns {Promise<DeleteResultMongo>} данные о результате удаления
 	 */
 	public async deleteManyByFilter(
 		filter: FilterMongo<TModel>,
-		options?: DeleteManyOptionsRepo<TModel>
+		options?: DeleteManyMongoOptionsRepo<TModel>
 	): Promise<DeleteResultMongo> {
 		/** Фильтр для поиска документов по фильтру. */
 		const deleteOptions = this.buildDeleteOptions(options);

@@ -31,7 +31,7 @@ import { HttpStatusCode } from '@core/http';
 export abstract class ApiResponse {
 	private status: HttpStatusCode;
 	private message: string;
-	private details: Record<string, any> | null;
+	private details?: Record<string, any>;
 
 	/**
 	 * Конструктор базового ответа.
@@ -47,11 +47,13 @@ export abstract class ApiResponse {
 	}: {
 		status: HttpStatusCode;
 		message: string;
-		details: Record<string, any> | null;
+		details: Record<string, any> | undefined;
 	}) {
 		this.status = status;
 		this.message = message;
-		this.details = details;
+		if (details) {
+			this.details = details;
+		}
 	}
 
 	/**
@@ -86,7 +88,7 @@ export abstract class ApiResponse {
 	 *
 	 * @return карта дополнительных деталей
 	 */
-	public getDetails(): Record<string, any> | null {
+	public getDetails(): Record<string, any> | undefined {
 		return this.details;
 	}
 

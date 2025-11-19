@@ -49,7 +49,7 @@ export class SuccessResponse<T> extends ApiResponse {
 	}: {
 		status: HttpStatusCode;
 		message: string;
-		details: Record<string, any>;
+		details: Record<string, any> | undefined;
 		data: T;
 	}) {
 		super({ status, message, details });
@@ -88,7 +88,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -114,7 +114,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -140,7 +140,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -166,7 +166,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -191,7 +191,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		details
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 	}) {
 		return new SuccessResponse({
 			status: HttpStatusCode.NO_CONTENT,
@@ -216,7 +216,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -242,7 +242,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -268,7 +268,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -294,7 +294,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -320,7 +320,7 @@ export class SuccessResponse<T> extends ApiResponse {
 		data
 	}: {
 		message: string;
-		details: Record<string, any>;
+		details?: Record<string, any>;
 		data: T;
 	}) {
 		return new SuccessResponse({
@@ -332,10 +332,13 @@ export class SuccessResponse<T> extends ApiResponse {
 	}
 
 	public toJSON() {
-		return {
+		const json = {
 			message: this.getMessage(),
 			details: this.getDetails(),
+
 			data: this.getData()
 		};
+
+		return json;
 	}
 }

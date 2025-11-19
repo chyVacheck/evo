@@ -15,22 +15,22 @@ import { ClientSession } from 'mongodb';
  * ! my imports
  */
 import {
-	type InsertOneOptionsRepo,
-	type InsertManyOptionsRepo,
-	type FindOneOptionsRepo,
-	type FindManyOptionsRepo,
-	type CountOptionsRepo,
-	type ExistsOptionsRepo,
-	type UpdateOneOptionsRepo,
-	type UpdateManyOptionsRepo,
-	type ModifyOneOptionsRepo,
-	type DeleteOneOptionsRepo,
-	type DeleteManyOptionsRepo,
+	type InsertOneMongoOptionsRepo,
+	type InsertManyMongoOptionsRepo,
+	type FindOneMongoOptionsRepo,
+	type FindManyMongoOptionsRepo,
+	type CountMongoOptionsRepo,
+	type ExistsMongoOptionsRepo,
+	type UpdateOneMongoOptionsRepo,
+	type UpdateManyMongoOptionsRepo,
+	type ModifyOneMongoOptionsRepo,
+	type DeleteOneMongoOptionsRepo,
+	type DeleteManyMongoOptionsRepo,
 	type TId
 } from '@core/types/repository';
 
 export type ServiceMeta<TAuthorId = TId> = {
-	requestId: string;
+	requestId?: string;
 	authorId?: TAuthorId;
 	session?: ClientSession;
 	ip?: string;
@@ -46,14 +46,14 @@ export type ServiceMeta<TAuthorId = TId> = {
  * Узкие, удобные опции вставки одной сущности
  */
 export interface CreateOneOptions<T>
-	extends Omit<InsertOneOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<InsertOneMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * @description
  * Узкие, удобные опции вставки многих сущностей
  */
 export interface CreateManyOptions<T>
-	extends Omit<InsertManyOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<InsertManyMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * ? === === === READ === === ===
@@ -64,7 +64,7 @@ export interface CreateManyOptions<T>
  * Опции для поиска одной сущности по фильтру.
  */
 export interface FindOneOptions<T>
-	extends Omit<FindOneOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<FindOneMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * @description
@@ -72,7 +72,7 @@ export interface FindOneOptions<T>
  */
 export interface FindManyOptions<T>
 	extends Omit<
-		FindManyOptionsRepo<T>,
+		FindManyMongoOptionsRepo<T>,
 		'comment' | 'session' | 'skip' | 'saveOrder'
 	> {
 	/**
@@ -96,7 +96,7 @@ export interface FindManyOptions<T>
  * Опции для подсчета количества сущностей по фильтру.
  */
 export interface ExistsOptions<T>
-	extends Omit<ExistsOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<ExistsMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * * === === === Count === === ===
@@ -107,7 +107,7 @@ export interface ExistsOptions<T>
  * Опции для подсчета количества сущностей по фильтру.
  */
 export interface CountOptions<T>
-	extends Omit<CountOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<CountMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * ? === === === UPDATE === === ===
@@ -118,20 +118,20 @@ export interface CountOptions<T>
  * Узкие, удобные опции обновления одной сущности
  */
 export interface UpdateOneOptions<T>
-	extends Omit<UpdateOneOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<UpdateOneMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * @description
  * Узкие, удобные опции обновления многих сущностей
  */
-export interface UpdateManyOptions<T> extends UpdateManyOptionsRepo<T> {}
+export interface UpdateManyOptions<T> extends UpdateManyMongoOptionsRepo<T> {}
 
 /**
  * @description
  * Узкие, удобные опции модификации одной сущности
  */
 export interface ModifyOneOptions<T>
-	extends Omit<ModifyOneOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<ModifyOneMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * ? === === === DELETE === === ===
@@ -142,14 +142,14 @@ export interface ModifyOneOptions<T>
  * Опции для удаления одной сущности по фильтру.
  */
 export interface DeleteOneOptions<T>
-	extends Omit<DeleteOneOptionsRepo<T>, 'comment' | 'session'> {}
+	extends Omit<DeleteOneMongoOptionsRepo<T>, 'comment' | 'session'> {}
 
 /**
  * @description
  * Узкие, удобные опции удаления многих сущностей
  */
 export interface DeleteManyOptions<T>
-	extends Omit<DeleteManyOptionsRepo<T>, 'comment' | 'session'> {
+	extends Omit<DeleteManyMongoOptionsRepo<T>, 'comment' | 'session'> {
 	/**
 	 * @description
 	 * Разрешить обрезку коллекции (удаление всех документов).

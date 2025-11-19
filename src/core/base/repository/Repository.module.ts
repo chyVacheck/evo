@@ -29,12 +29,41 @@ import { BaseModule } from '@core/base/Base.module';
  * @typeParam ModuleName - Имя модуля (литеральная строка).
  */
 export abstract class RepositoryModule extends BaseModule {
+	/** Имя группы сущностей (для логов/ошибок) */
+	protected readonly entitiesGroup: string;
+	/** Имя сущности (для логов/ошибок) */
+	protected readonly entityName: string;
+
 	/**
 	 * Базовый конструктор Repository-модуля.
 	 * @param moduleName - Название модуля
 	 */
-	constructor(moduleName: string) {
+	constructor(moduleName: string, entitiesGroup: string, entityName: string) {
 		super(EModuleType.REPOSITORY, moduleName);
+		this.entitiesGroup = entitiesGroup;
+		this.entityName = entityName;
+	}
+
+	/**
+	 * ? === === === Public === === ===
+	 */
+
+	/**
+	 * Метод получения имени группы сущностей, к которой относится репозиторий.
+	 *
+	 * @returns Имя таблицы/коллекции/группы сущностей (литеральная строка).
+	 */
+	public getEntitiesGroup(): string {
+		return this.entitiesGroup;
+	}
+
+	/**
+	 * Абстрактный метод получения имени сущности, к которой относится репозиторий.
+	 *
+	 * @returns Имя сущности (литеральная строка).
+	 */
+	public getEntityName(): string {
+		return this.entityName;
 	}
 }
 

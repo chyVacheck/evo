@@ -11,4 +11,5 @@ export * from './Base.error';
 export * from './Configuration.error';
 export * from './Dependency.error';
 export * from './Initialization.error';
+export * from './InvalidParams.error';
 export * from './RouteConflict.error';
